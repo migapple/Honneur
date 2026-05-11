@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Légion d'Honneur</title>
+<style>
+:root{--fs:1;--bg:#0b0a06;--bg2:#13100a;--card:#1a1508;--gold:#c9a84c;--gold2:#e8c97a;--red:#8b1a1a;--red2:#c0392b;--text:#f0e8d8;--muted:#7a6a5a;--accent:#8b1a1a;--sep:rgba(201,168,76,.13)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Georgia',serif}
+#app{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+.header{padding-top:calc(12px + env(safe-area-inset-top));background:var(--bg);flex-shrink:0;border-bottom:1px solid var(--sep)}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:0 14px 10px}
+.header h1{font-size:calc(16px * var(--fs));color:var(--gold);letter-spacing:.6px;font-style:italic;font-weight:normal}
+.hicons{display:flex;gap:8px}
+.ibtn{background:none;border:none;color:var(--gold);font-size:calc(20px * var(--fs));cursor:pointer;padding:4px}
+.search-wrap{position:relative;padding:0 12px 10px}
+.search-input{width:100%;background:rgba(255,255,255,.07);border:1px solid var(--sep);border-radius:10px;padding:8px 36px 8px 12px;color:var(--text);font-size:calc(13px * var(--fs));font-family:inherit;outline:none;-webkit-appearance:none}
+.search-input::placeholder{color:var(--muted)}
+.search-clear{position:absolute;right:20px;top:calc(50% - 5px);transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;width:22px;height:22px;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:calc(13px * var(--fs));cursor:pointer;line-height:1;padding:0}
+.chips-bar{display:flex;overflow-x:auto;gap:6px;padding:0 12px 10px;scrollbar-width:none;flex-shrink:0}
+.chips-bar::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:calc(11px * var(--fs));cursor:pointer;border:1px solid var(--sep);background:none;color:var(--muted);font-family:inherit;white-space:nowrap;transition:all .18s}
+.chip.active{background:rgba(139,26,26,.25);border-color:var(--red2);color:var(--gold2)}
+.main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+.section-hdr{padding:9px 14px 5px;font-size:calc(10px * var(--fs));color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;background:var(--bg);position:sticky;top:0;z-index:5;border-bottom:1px solid var(--sep)}
+.prow{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--sep);cursor:pointer;background:var(--bg);transition:background .15s}
+.prow:active{background:var(--card)}
+.row-img{width:54px;height:54px;border-radius:10px;background:#1e1510;flex-shrink:0;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;font-size:calc(26px * var(--fs))}
+.row-img img{width:100%;height:100%;object-fit:cover;object-position:center 20%;position:absolute;inset:0;display:none}
+.row-info{flex:1;min-width:0}
+.row-name{font-size:calc(14px * var(--fs));color:var(--text);margin-bottom:2px;font-style:italic}
+.row-dates{font-size:calc(11px * var(--fs));color:var(--muted)}
+.row-cat{font-size:calc(10px * var(--fs));color:var(--gold);margin-top:2px}
+.row-badge{font-size:calc(10px * var(--fs));color:var(--red2);margin-top:1px;font-weight:bold}
+.row-flag{font-size:calc(18px * var(--fs));flex-shrink:0}
+.row-arr{color:var(--muted);font-size:calc(16px * var(--fs));flex-shrink:0}
+.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:calc(14px * var(--fs));font-style:italic}
+/* SHEET */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.on{opacity:1;pointer-events:all}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:101;background:var(--bg2);border-radius:20px 20px 0 0;border-top:1px solid rgba(201,168,76,.3);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,.72,0,1);max-height:92vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+.sheet.on{transform:translateY(0)}
+.sh-handle{width:38px;height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin:10px auto 0}
+.sh-scroll{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.sh-head{padding:14px 18px 0;display:flex;justify-content:space-between;align-items:flex-start}
+.sh-title{flex:1}
+.sh-name{font-size:calc(21px * var(--fs));color:var(--gold2);font-style:italic;line-height:1.2}
+.sh-dates{font-size:calc(11px * var(--fs));color:var(--muted);letter-spacing:.8px;margin-top:2px}
+.sh-country{font-size:calc(12px * var(--fs));color:var(--text);margin-top:3px}
+.sh-tag{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:20px;background:rgba(139,26,26,.3);border:1px solid rgba(192,57,43,.5);font-size:calc(10.5px * var(--fs));color:var(--gold)}
+.sh-grade{display:inline-block;margin-top:4px;margin-left:6px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.35);font-size:calc(10px * var(--fs));color:var(--gold2);font-style:italic}
+.sh-close{background:none;border:none;color:var(--muted);font-size:calc(26px * var(--fs));cursor:pointer;padding:0 0 0 10px;line-height:1;flex-shrink:0}
+.sh-img-wrap{margin:14px 16px 0;border-radius:13px;overflow:hidden;background:#1a1208;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;position:relative}
+.sh-img-wrap img{width:100%;height:100%;object-fit:contain;object-position:center center;position:absolute;inset:0;display:none}
+.sh-img-ph{font-size:calc(60px * var(--fs));position:relative;z-index:1}
+.sh-oeuvre-cap{margin:5px 16px 0;font-size:calc(11px * var(--fs));color:var(--gold2);text-align:center;font-style:italic}
+.sh-body{padding:14px 18px 20px}
+.slabel{font-size:calc(10px * var(--fs));color:var(--gold);text-transform:uppercase;letter-spacing:1.3px;margin-bottom:5px}
+.sbio{font-size:calc(13px * var(--fs));color:var(--text);line-height:1.65;margin-bottom:14px}
+.faits-list{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.fitem{background:rgba(201,168,76,.07);border-radius:8px;padding:8px 11px;border-left:2px solid var(--gold)}
+.ft{font-size:calc(12.5px * var(--fs));color:var(--gold2);font-style:italic}
+.fy{font-size:calc(10px * var(--fs));color:var(--muted);margin-top:1px}
+/* Médaille décorative */
+.medal-banner{margin:12px 16px 0;padding:10px 14px;background:linear-gradient(135deg,rgba(139,26,26,.25),rgba(201,168,76,.1));border:1px solid rgba(201,168,76,.25);border-radius:12px;display:flex;align-items:center;gap:10px}
+.medal-icon{font-size:calc(28px * var(--fs));flex-shrink:0}
+.medal-info{flex:1}
+.medal-year{font-size:calc(11px * var(--fs));color:var(--gold);letter-spacing:.5px}
+.medal-grade-full{font-size:calc(12px * var(--fs));color:var(--text);margin-top:2px;font-style:italic}
+/* SETTINGS */
+.settings-panel{position:fixed;inset:0;background:var(--bg);z-index:200;display:none;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+.settings-panel.on{display:flex}
+.sett-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--sep)}
+.sett-hdr h2{font-size:calc(15px * var(--fs));color:var(--gold);font-style:italic;font-weight:normal}
+.sett-scroll{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch}
+.apps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.apps-grid-item{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
+.apps-grid-item img{width:56px;height:56px;border-radius:13px;background:#1a1a1a}
+.apps-grid-item span{font-size:calc(9px * var(--fs));color:var(--muted);text-align:center;line-height:1.2}
+.apps-badge{display:block;margin:0 auto 8px;height:40px}
+.fs-control{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.05);border-radius:12px;padding:12px 16px;margin-bottom:16px;border:1px solid var(--sep)}
+.fs-label{font-size:calc(13px * var(--fs));color:var(--text)}
+.fs-btns{display:flex;align-items:center;gap:12px}
+.fs-btn{background:rgba(201,168,76,.15);border:1px solid var(--sep);color:var(--gold);width:34px;height:34px;border-radius:8px;font-size:calc(20px * var(--fs));cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.fs-val{font-size:calc(15px * var(--fs));color:var(--gold2);min-width:36px;text-align:center}
+/* QUIZ */
+.quiz-btn-sheet{background:linear-gradient(135deg,var(--red),#5a0a0a);border:none;border-radius:10px;color:var(--gold2);font-size:calc(13px * var(--fs));padding:11px;cursor:pointer;width:100%;margin-top:10px;font-family:inherit;font-style:italic;letter-spacing:.4px}
+.quiz-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:250;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;padding-top:calc(20px + env(safe-area-inset-top));padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+.quiz-overlay.on{display:flex}
+.quiz-card{background:var(--bg2);border-radius:20px;padding:20px;width:100%;max-width:420px;border:1px solid rgba(201,168,76,.2);position:relative}
+.quiz-close-btn{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:calc(24px * var(--fs));cursor:pointer;line-height:1}
+.quiz-progress{font-size:calc(11px * var(--fs));color:var(--muted);text-align:center;margin-bottom:10px;letter-spacing:1px}
+.quiz-img{width:100%;aspect-ratio:4/3;object-fit:contain;object-position:center center;border-radius:10px;margin-bottom:12px;background:#1e1510;display:block}
+.quiz-q{font-size:calc(15px * var(--fs));color:var(--text);margin-bottom:14px;text-align:center;line-height:1.5;min-height:44px}
+.quiz-opts{display:flex;flex-direction:column;gap:7px}
+.quiz-opt{background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.15);border-radius:10px;padding:11px;color:var(--text);font-size:calc(13px * var(--fs));cursor:pointer;text-align:left;font-family:inherit;transition:all .2s}
+.quiz-opt.correct{background:rgba(50,180,80,.2);border-color:#32b450;color:#7dffaa}
+.quiz-opt.wrong{background:rgba(180,50,50,.2);border-color:#b43232;color:#ff8888}
+.quiz-score-num{font-size:calc(32px * var(--fs));color:var(--gold2);text-align:center;margin:14px 0 4px;font-style:italic}
+.quiz-score-lbl{font-size:calc(13px * var(--fs));color:var(--muted);text-align:center;margin-bottom:14px}
+.quiz-next{background:var(--gold);color:var(--bg);border:none;border-radius:10px;padding:12px;font-size:calc(14px * var(--fs));cursor:pointer;width:100%;margin-top:10px;font-family:inherit;font-weight:bold}
+.quiz-replay{background:var(--red);color:var(--gold2);border:none;border-radius:10px;padding:12px;font-size:calc(14px * var(--fs));cursor:pointer;width:100%;margin-top:8px;font-family:inherit;font-style:italic}
+/* HISTOIRE PANEL */
+.histoire-panel{position:fixed;inset:0;background:var(--bg);z-index:200;display:none;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+.histoire-panel.on{display:flex}
+.hist-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--sep);flex-shrink:0}
+.hist-hdr h2{font-size:calc(15px * var(--fs));color:var(--gold);font-style:italic;font-weight:normal}
+.hist-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 20px}
+/* Hero bannière */
+.hist-hero{background:linear-gradient(160deg,#1a0a0a 0%,#0f0a00 60%,#0b0a06 100%);padding:24px 20px 20px;text-align:center;border-bottom:1px solid var(--sep);position:relative;overflow:hidden}
+.hist-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(139,26,26,.35) 0%,transparent 70%);pointer-events:none}
+.hist-ribbon{font-size:calc(56px * var(--fs));margin-bottom:8px;position:relative;z-index:1}
+.hist-hero-title{font-size:calc(20px * var(--fs));color:var(--gold2);font-style:italic;line-height:1.25;margin-bottom:6px;position:relative;z-index:1}
+.hist-hero-sub{font-size:calc(11px * var(--fs));color:var(--muted);letter-spacing:1px;text-transform:uppercase;position:relative;z-index:1}
+/* Ligne de stats */
+.hist-stats{display:flex;border-bottom:1px solid var(--sep)}
+.hist-stat{flex:1;text-align:center;padding:14px 8px;border-right:1px solid var(--sep)}
+.hist-stat:last-child{border-right:none}
+.hist-stat-num{font-size:calc(20px * var(--fs));color:var(--gold2);font-style:italic;font-weight:normal}
+.hist-stat-lbl{font-size:calc(9px * var(--fs));color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+/* Sections */
+.hist-section{padding:18px 18px 0}
+.hist-sec-title{font-size:calc(11px * var(--fs));color:var(--gold);text-transform:uppercase;letter-spacing:1.4px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--sep)}
+.hist-para{font-size:calc(13px * var(--fs));color:var(--text);line-height:1.7;margin-bottom:12px}
+/* Timeline */
+.hist-timeline{display:flex;flex-direction:column;gap:0;margin-bottom:4px}
+.hist-titem{display:flex;gap:12px;padding-bottom:16px;position:relative}
+.hist-titem::before{content:'';position:absolute;left:17px;top:28px;bottom:0;width:1px;background:rgba(201,168,76,.2)}
+.hist-titem:last-child::before{display:none}
+.hist-tdot{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--red),#5a0a0a);border:2px solid var(--gold);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:calc(14px * var(--fs));z-index:1}
+.hist-tcontent{flex:1;padding-top:4px}
+.hist-tyear{font-size:calc(11px * var(--fs));color:var(--gold);letter-spacing:.5px;margin-bottom:2px}
+.hist-tevent{font-size:calc(13px * var(--fs));color:var(--text);line-height:1.5}
+/* Grades */
+.hist-grades{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
+.hist-grade-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border-radius:10px;padding:10px 12px;border:1px solid var(--sep)}
+.hist-grade-stars{font-size:calc(15px * var(--fs));flex-shrink:0;min-width:52px;text-align:center}
+.hist-grade-name{font-size:calc(13px * var(--fs));color:var(--gold2);font-style:italic}
+.hist-grade-desc{font-size:calc(10.5px * var(--fs));color:var(--muted);margin-top:1px}
+/* Devise */
+.hist-devise{margin:16px 18px;padding:14px 16px;background:linear-gradient(135deg,rgba(139,26,26,.2),rgba(201,168,76,.08));border:1px solid rgba(201,168,76,.3);border-radius:12px;text-align:center}
+.hist-devise-text{font-size:calc(16px * var(--fs));color:var(--gold2);font-style:italic;letter-spacing:.5px}
+.hist-devise-sub{font-size:calc(10px * var(--fs));color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+/* iPad */
+@media(min-width:768px){
+  .hist-hero-title{font-size:calc(24px * var(--fs))}
+  .hist-para{font-size:calc(16px * var(--fs))}
+  .hist-tevent{font-size:calc(15px * var(--fs))}
+  .hist-grade-name{font-size:calc(15px * var(--fs))}
+}
+/* iPad */
+@media(min-width:768px){
+  .apps-grid{grid-template-columns:repeat(6,1fr)!important}
+  .header h1{font-size:calc(21px * var(--fs))}
+  .row-name{font-size:calc(18px * var(--fs))}
+  .row-dates{font-size:calc(14px * var(--fs))}
+  .row-cat{font-size:calc(13px * var(--fs))}
+  .chip{font-size:calc(14px * var(--fs));padding:7px 16px}
+  .search-input{font-size:calc(16px * var(--fs))}
+  .section-hdr{font-size:calc(13px * var(--fs))}
+  .row-img{width:70px;height:70px}
+  .sh-name{font-size:calc(26px * var(--fs))}
+  .sbio{font-size:calc(16px * var(--fs))}
+  .ft{font-size:calc(15px * var(--fs))}
+  .fy{font-size:calc(12px * var(--fs))}
+}
+/* SOCIÉTÉ CIVILE */
+.soc-hero{background:linear-gradient(160deg,#060e16 0%,#0a1208 60%,#0b0a06 100%);padding:24px 20px 20px;text-align:center;border-bottom:1px solid var(--sep);position:relative;overflow:hidden}
+.soc-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(26,80,139,.3) 0%,transparent 70%);pointer-events:none}
+.soc-domains-bar{display:flex;flex-wrap:wrap;gap:4px;padding:10px 14px;border-bottom:1px solid var(--sep);flex-shrink:0}
+.soc-domain-chip{display:inline-block;padding:4px 11px;border-radius:20px;font-size:calc(10px * var(--fs));border:1px solid rgba(201,168,76,.2);color:var(--muted);background:none;cursor:pointer;transition:all .18s;font-family:inherit;white-space:nowrap}
+.soc-domain-chip.active{background:rgba(26,80,139,.25);border-color:#4a90c4;color:#a8d4f0}
+.soc-cards-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:20px}
+.soc-intro{margin:12px 14px 0;padding:12px 14px;background:linear-gradient(135deg,rgba(26,80,139,.15),rgba(201,168,76,.06));border:1px solid rgba(74,144,196,.2);border-radius:12px}
+.soc-intro-title{font-size:calc(13px * var(--fs));color:#a8d4f0;font-style:italic;margin-bottom:5px}
+.soc-intro-text{font-size:calc(12px * var(--fs));color:var(--text);line-height:1.65}
+.soc-stats{display:flex;border-top:1px solid var(--sep);border-bottom:1px solid var(--sep);margin-top:12px}
+.soc-stat{flex:1;text-align:center;padding:11px 6px;border-right:1px solid var(--sep)}
+.soc-stat:last-child{border-right:none}
+.soc-stat-num{font-size:calc(17px * var(--fs));color:#a8d4f0;font-style:italic}
+.soc-stat-lbl{font-size:calc(9px * var(--fs));color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-top:2px}
+.soc-section-hdr{padding:12px 14px 5px;font-size:calc(10px * var(--fs));color:#a8d4f0;text-transform:uppercase;letter-spacing:1.4px;background:var(--bg);position:sticky;top:0;border-bottom:1px solid var(--sep)}
+.soc-card{margin:10px 14px;background:var(--card);border-radius:14px;border:1px solid var(--sep);overflow:hidden;cursor:pointer;transition:background .15s}
+.soc-card:active{background:#1e1a10}
+.soc-card-top{display:flex;align-items:center;gap:12px;padding:12px 14px 8px}
+.soc-card-img{width:60px;height:60px;border-radius:10px;background:#1a1510;flex-shrink:0;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;font-size:calc(28px * var(--fs))}
+.soc-card-img img{width:100%;height:100%;object-fit:cover;object-position:center 20%;position:absolute;inset:0;display:none}
+.soc-card-info{flex:1;min-width:0}
+.soc-card-name{font-size:calc(14px * var(--fs));color:var(--gold2);font-style:italic;margin-bottom:2px}
+.soc-card-dates{font-size:calc(10px * var(--fs));color:var(--muted);margin-bottom:3px}
+.soc-card-titre{font-size:calc(11px * var(--fs));color:var(--text);line-height:1.35}
+.soc-card-bottom{padding:0 14px 12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.soc-domain-tag{padding:3px 9px;border-radius:20px;font-size:calc(9.5px * var(--fs));background:rgba(26,80,139,.2);border:1px solid rgba(74,144,196,.3);color:#a8d4f0}
+.soc-grade-tag{padding:3px 9px;border-radius:20px;font-size:calc(9.5px * var(--fs));background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.28);color:var(--gold)}
+.soc-year-tag{padding:3px 9px;border-radius:20px;font-size:calc(9.5px * var(--fs));background:rgba(255,255,255,.05);border:1px solid var(--sep);color:var(--muted)}
+/* Sheet société */
+.soc-sheet-intro{margin:10px 16px 0;padding:10px 13px;background:rgba(26,80,139,.12);border:1px solid rgba(74,144,196,.2);border-radius:10px}
+.soc-sheet-action{font-size:calc(11px * var(--fs));color:#a8d4f0;font-style:italic;line-height:1.5}
+@media(min-width:768px){
+  .soc-card-name{font-size:calc(17px * var(--fs))}
+  .soc-card-titre{font-size:calc(13px * var(--fs))}
+  .soc-card-img{width:74px;height:74px}
+}
+/* REFUS CÉLÈBRES */
+.section-hdr.refus{background:linear-gradient(90deg,rgba(139,26,26,.3),transparent);color:var(--red2);border-left:3px solid var(--red2)}
+.prow.refus-row{border-left:3px solid rgba(192,57,43,.4)}
+.refus-badge{font-size:calc(9.5px * var(--fs));color:var(--red2);margin-top:2px;font-style:italic}
+.refus-quote{margin:10px 16px 0;padding:10px 14px;background:rgba(139,26,26,.12);border-left:3px solid var(--red2);border-radius:0 8px 8px 0}
+.refus-quote-text{font-size:calc(12px * var(--fs));color:var(--gold2);font-style:italic;line-height:1.6}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-top">
+      <h1>🎖️ Légion d'Honneur</h1>
+      <div class="hicons">
+        <button class="ibtn" id="langBtn" onclick="toggleLang()">🇬🇧</button>
+        <button class="ibtn" onclick="openHistoire()">📖</button>
+        <button class="ibtn" onclick="openSociete()">🤝</button>
+        <button class="ibtn" onclick="startQuizGlobal()">❓</button>
+        <button class="ibtn" onclick="openSettings()">⚙️</button>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <input class="search-input" id="searchInput" placeholder="Rechercher un récipiendaire…" oninput="onSearch(this)">
+      <button class="search-clear" id="clearBtn" onclick="clearSearch()">✕</button>
+    </div>
+    <div class="chips-bar" id="chipsBar"></div>
+  </div>
+  <div class="main" id="mainList"></div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sh-handle"></div>
+  <div class="sh-scroll">
+    <div class="sh-head">
+      <div class="sh-title">
+        <div class="sh-name" id="shName"></div>
+        <div class="sh-dates" id="shDates"></div>
+        <div class="sh-country" id="shCountry"></div>
+        <div id="shTagWrap"></div>
+      </div>
+      <button class="sh-close" onclick="closeSheet()">✕</button>
+    </div>
+    <div class="medal-banner" id="medalBanner">
+      <div class="medal-icon">🎖️</div>
+      <div class="medal-info">
+        <div class="medal-year" id="medalYear"></div>
+        <div class="medal-grade-full" id="medalGrade"></div>
+      </div>
+    </div>
+    <div class="sh-img-wrap" id="shImgWrap">
+      <div class="sh-img-ph" id="shImgPh"></div>
+      <img id="shImg" alt="">
+    </div>
+    <div class="sh-oeuvre-cap" id="shCap"></div>
+    <div class="sh-body">
+      <div class="slabel" id="shBioLbl"></div>
+      <div class="sbio" id="shBio"></div>
+      <div class="slabel" id="shFaitsLbl"></div>
+      <div class="faits-list" id="shFaits"></div>
+      <button class="quiz-btn-sheet" onclick="startQuizFromSheet()">— Quiz sur cette catégorie —</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="quiz-overlay" id="quizOverlay">
+  <div class="quiz-card" id="quizCard">
+    <button class="quiz-close-btn" onclick="closeQuiz()">✕</button>
+  </div>
+</div>
+
+<div class="settings-panel" id="settingsPanel">
+  <div class="sett-hdr">
+    <h2>Nos Applications</h2>
+    <button class="ibtn" onclick="closeSettings()">✕</button>
+  </div>
+  <div class="sett-scroll">
+    <p style="font-size:calc(10px * var(--fs));color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Taille du texte</p>
+    <div class="fs-control">
+      <span class="fs-label" id="settFsLabel">Police</span>
+      <div class="fs-btns">
+        <button class="fs-btn" onclick="changeFontSize(-0.1)">−</button>
+        <span class="fs-val" id="fontPreview">100%</span>
+        <button class="fs-btn" onclick="changeFontSize(0.1)">＋</button>
+      </div>
+    </div>
+    <p style="font-size:calc(10px * var(--fs));color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Découvrez notre catalogue</p>
+    <div class="apps-grid" id="appsGrid"></div>
+    <a href="https://apps.apple.com/fr/developer/michel-garlandat/id1017896729" onclick="openExternal(event,this.href)">
+      <img class="apps-badge" src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/fr-fr" alt="App Store">
+    </a>
+  </div>
+</div>
+
+<!-- HISTOIRE -->
+<div class="histoire-panel" id="histoirePanel">
+  <div class="hist-hdr">
+    <h2 id="histTitle">Histoire de la Légion d'Honneur</h2>
+    <button class="ibtn" onclick="closeHistoire()">✕</button>
+  </div>
+  <div class="hist-scroll" id="histScroll"></div>
+</div>
+
+<!-- SOCIÉTÉ CIVILE -->
+<div class="histoire-panel" id="societePanel">
+  <div class="hist-hdr">
+    <h2 id="societeTitle">Société Civile</h2>
+    <button class="ibtn" onclick="closeSociete()">✕</button>
+  </div>
+  <div class="soc-domains-bar" id="socDomainsBar"></div>
+  <div class="soc-cards-scroll" id="societeScroll"></div>
+</div>
+
+<script>
+var LANG = 'fr';
+var currentFilter = 'tous';
+var searchQ = '';
+var imgCache = {};
+var currentSheetId = null;
+var quizData = [], quizIdx = 0, quizScore = 0, quizAnswered = false;
+var quizFilterCat = null;
+
+// ─── TAILLE POLICE (système iPad) ──────────────────────────────────────────
+var isIpad = navigator.userAgent.indexOf('iPad')>=0 || (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+var fontScale = parseFloat(localStorage.getItem('legion_fs') || '0');
+if (!fontScale) { fontScale = isIpad ? 1.3 : 1.0; }
+function applyFontSize(){
+  document.documentElement.style.setProperty('--fs', fontScale);
+  var el=document.getElementById('fontPreview');
+  if(el) el.textContent=Math.round(fontScale*100)+'%';
+  localStorage.setItem('legion_fs', fontScale);
+}
+function changeFontSize(delta){
+  fontScale=Math.min(1.8,Math.max(0.8,Math.round((fontScale+delta)*10)/10));
+  applyFontSize();
+}
+
+// ─── HTTP CAPACITOR ─────────────────────────────────────────────────────────
+var CapHttp=(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.CapacitorHttp)
+  ?window.Capacitor.Plugins.CapacitorHttp:null;
+
+// ─── CATÉGORIES ─────────────────────────────────────────────────────────────
+var CATEGORIES = {
+  art:        {fr:'Arts & Culture',   en:'Arts & Culture'},
+  science:    {fr:'Sciences',         en:'Sciences'},
+  politique:  {fr:'Politique',        en:'Politics'},
+  militaire:  {fr:'Militaire',        en:'Military'},
+  sport:      {fr:'Sport',            en:'Sport'},
+  litterature:{fr:'Littérature',      en:'Literature'},
+  musique:    {fr:'Musique',          en:'Music'},
+  cinema:     {fr:'Cinéma',           en:'Cinema'},
+  societe:    {fr:'Société Civile',   en:'Civil Society'},
+  refus:      {fr:'🚫 Refus Célèbres', en:'🚫 Famous Refusals'}
+};
+
+var GRADES = {
+  chevalier:  {fr:'Chevalier',        en:'Knight'},
+  officier:   {fr:'Officier',         en:'Officer'},
+  commandeur: {fr:'Commandeur',       en:'Commander'},
+  grand_off:  {fr:'Grand Officier',   en:'Grand Officer'},
+  grand_croix:{fr:'Grand-Croix',      en:'Grand Cross'}
+};
+
+// ─── DONNÉES ─────────────────────────────────────────────────────────────────
+var LEGION = [
+
+  // ── ART ──
+  {id:'monet',cat:'art',flag:'🇫🇷',emoji:'🌸',grade:'chevalier',year:1888,
+   wt:'Claude_Monet',
+   wf:'Claude_Monet_-_Water_Lilies_-_1906,_Ryerson.jpg',
+   fr:{name:'Claude Monet',dates:'1840–1926',country:'France',
+    titre:'Peintre impressionniste',
+    caption:'Les Nymphéas',
+    bio:'Fondateur de l\'impressionnisme, Monet reçoit la Légion d\'Honneur pour son œuvre révolutionnaire. Ses séries de cathédrales, meules et Nymphéas capturent la lumière changeante avec une sensibilité inégalée. Son jardin de Giverny devint son chef-d\'œuvre vivant.',
+    faits:[{t:'Série des Nymphéas',y:'48 grandes toiles, 1896-1926'},{t:'Cathédrales de Rouen',y:'30 tableaux, 1892-1894'},{t:'Fondateur de l\'impressionnisme',y:'Exposition 1874'}]},
+   en:{name:'Claude Monet',dates:'1840–1926',country:'France',
+    titre:'Impressionist Painter',
+    caption:'Water Lilies',
+    bio:'Founder of Impressionism, Monet received the Legion of Honor for his revolutionary work. His series of cathedrals, haystacks, and Water Lilies capture changing light with unmatched sensitivity. His garden at Giverny became his living masterpiece.',
+    faits:[{t:'Water Lilies Series',y:'48 large canvases, 1896-1926'},{t:'Rouen Cathedrals',y:'30 paintings, 1892-1894'},{t:'Impressionism Founder',y:'Exhibition 1874'}]}},
+
+  {id:'rodin',cat:'art',flag:'🇫🇷',emoji:'🗿',grade:'commandeur',year:1903,
+   wt:'The_Thinker,_Rodin',
+   wf:'The_Thinker,_Auguste_Rodin.jpg',
+   fr:{name:'Auguste Rodin',dates:'1840–1917',country:'France',
+    titre:'Sculpteur',
+    caption:'Le Penseur',
+    bio:'Le plus grand sculpteur français depuis la Renaissance, Rodin élevé au grade de Commandeur en 1903. Ses sculptures au réalisme puissant — Le Penseur, Le Baiser, La Porte de l\'Enfer — révolutionnent l\'art académique et ouvrent la voie à la sculpture moderne.',
+    faits:[{t:'Le Penseur',y:'1882, chef-d\'œuvre universel'},{t:'La Porte de l\'Enfer',y:'200 figures, 1880-1917'},{t:'Le Baiser',y:'1882, marbre emblématique'}]},
+   en:{name:'Auguste Rodin',dates:'1840–1917',country:'France',
+    titre:'Sculptor',
+    caption:'The Thinker',
+    bio:'The greatest French sculptor since the Renaissance, Rodin was elevated to Commander in 1903. His powerfully realistic sculptures — The Thinker, The Kiss, The Gates of Hell — revolutionized academic art and opened the way for modern sculpture.',
+    faits:[{t:'The Thinker',y:'1882, universal masterpiece'},{t:'The Gates of Hell',y:'200 figures, 1880-1917'},{t:'The Kiss',y:'1882, iconic marble'}]}},
+
+  {id:'delacroix',cat:'art',flag:'🇫🇷',emoji:'⚔️',grade:'officier',year:1851,
+   wt:'Liberty_Leading_the_People',
+   wf:'Eugène_Delacroix_-_La_liberté_guidant_le_peuple.jpg',
+   fr:{name:'Eugène Delacroix',dates:'1798–1863',country:'France',
+    titre:'Peintre romantique',
+    caption:'La Liberté guidant le peuple',
+    bio:'Chef de file du romantisme français, Delacroix est nommé Officier de la Légion d\'Honneur. Son œuvre magistrale La Liberté guidant le peuple symbolise la révolution de 1830. Coloriste fougueux admiré par Baudelaire, il préfigure l\'impressionnisme.',
+    faits:[{t:'La Liberté guidant le peuple',y:'1830, Musée du Louvre'},{t:'Plafond du Palais-Bourbon',y:'1838-1847'},{t:'Mort de Sardanapale',y:'1827, scandale au Salon'}]},
+   en:{name:'Eugène Delacroix',dates:'1798–1863',country:'France',
+    titre:'Romantic Painter',
+    caption:'Liberty Leading the People',
+    bio:'Leader of French Romanticism, Delacroix was appointed Officer of the Legion of Honor. His masterwork Liberty Leading the People symbolizes the Revolution of 1830. A passionate colorist admired by Baudelaire, he foreshadowed Impressionism.',
+    faits:[{t:'Liberty Leading the People',y:'1830, Louvre Museum'},{t:'Palais-Bourbon Ceiling',y:'1838-1847'},{t:'Death of Sardanapalus',y:'1827, Salon scandal'}]}},
+
+  {id:'cezanne',cat:'art',flag:'🇫🇷',emoji:'🍎',grade:'chevalier',year:1904,
+   wt:'Paul Cézanne',
+   wf:'Paul_Cézanne_-_The_Large_Bathers_(London).jpg',
+   fr:{name:'Paul Cézanne',dates:'1839–1906',country:'France',
+    titre:'Père de la peinture moderne',
+    caption:'Les Grandes Baigneuses',
+    bio:'Refusé par le Salon pendant des années, Cézanne est enfin reconnu par la Légion d\'Honneur en 1904. Son approche géométrique de la nature — «traiter la nature par le cylindre, la sphère, le cône» — révolutionne l\'art et inspire directement le cubisme de Picasso.',
+    faits:[{t:'La Montagne Sainte-Victoire',y:'Série de 60+ toiles'},{t:'Les Joueurs de cartes',y:'1894-1895, chef-d\'œuvre'},{t:'Inspiration du Cubisme',y:'Picasso lui doit tout'}]},
+   en:{name:'Paul Cézanne',dates:'1839–1906',country:'France',
+    titre:'Father of Modern Painting',
+    caption:'The Large Bathers',
+    bio:'Rejected by the Salon for years, Cézanne was finally recognized by the Legion of Honor in 1904. His geometric approach to nature — "treat nature by the cylinder, sphere, cone" — revolutionized art and directly inspired Picasso\'s Cubism.',
+    faits:[{t:'Mont Sainte-Victoire',y:'Series of 60+ canvases'},{t:'The Card Players',y:'1894-1895, masterpiece'},{t:'Cubism Inspiration',y:'Picasso owes him everything'}]}},
+
+  {id:'matisse',cat:'art',flag:'🇫🇷',emoji:'✂️',grade:'commandeur',year:1925,
+   wt:'Henri Matisse',
+   wf:'La_danse_(Matisse).jpg',
+   fr:{name:'Henri Matisse',dates:'1869–1954',country:'France',
+    titre:'Peintre fauviste',
+    caption:'La Danse',
+    bio:'Chef de file du fauvisme, Matisse reçoit la Légion d\'Honneur au grade de Commandeur. Ses couleurs pures et formes simplifiées révolutionnent la peinture du XXe siècle. À la fin de sa vie, cloué au lit, il invente les papiers découpés, une nouvelle forme d\'art.',
+    faits:[{t:'La Danse',y:'1910, commande de Chtchoukine'},{t:'Papiers découpés',y:'1940s, nouvelle création'},{t:'Chapelle de Vence',y:'1951, chef-d\'œuvre tardif'}]},
+   en:{name:'Henri Matisse',dates:'1869–1954',country:'France',
+    titre:'Fauvist Painter',
+    caption:'The Dance',
+    bio:'Leader of Fauvism, Matisse received the Legion of Honor at Commander rank. His pure colors and simplified forms revolutionized 20th-century painting. Late in life, bedridden, he invented cut-outs, a new form of art.',
+    faits:[{t:'The Dance',y:'1910, commissioned by Shchukin'},{t:'Cut-outs',y:'1940s, new creation'},{t:'Vence Chapel',y:'1951, late masterpiece'}]}},
+
+  // ── SCIENCES ──
+  {id:'curie',cat:'science',flag:'🇵🇱',emoji:'⚗️',grade:'chevalier',year:1903,
+   wt:'Marie_Curie',
+   wf:'Maria_Sklodowska-Curie_circa_1898.jpg',
+   fr:{name:'Marie Curie',dates:'1867–1934',country:'Pologne / France',
+    titre:'Physicienne et chimiste, 2 Prix Nobel',
+    caption:'Marie Curie vers 1898',
+    bio:'Première femme à recevoir la Légion d\'Honneur, unique personnalité à obtenir deux prix Nobel (physique 1903, chimie 1911). Elle découvre le polonium et le radium, ouvre la voie à la physique nucléaire et à la radiothérapie. Son courage face aux préjugés de son époque reste exemplaire.',
+    faits:[{t:'Prix Nobel de Physique',y:'1903, avec Pierre Curie'},{t:'Prix Nobel de Chimie',y:'1911, seule récipiendaire'},{t:'Découverte du Radium',y:'1898, révolution scientifique'}]},
+   en:{name:'Marie Curie',dates:'1867–1934',country:'Poland / France',
+    titre:'Physicist & Chemist, 2 Nobel Prizes',
+    caption:'Marie Curie circa 1898',
+    bio:'First woman to receive the Legion of Honor, unique personality to win two Nobel Prizes (physics 1903, chemistry 1911). She discovered polonium and radium, opened the way to nuclear physics and radiotherapy. Her courage against the prejudices of her era remains exemplary.',
+    faits:[{t:'Nobel Prize in Physics',y:'1903, with Pierre Curie'},{t:'Nobel Prize in Chemistry',y:'1911, sole recipient'},{t:'Discovery of Radium',y:'1898, scientific revolution'}]}},
+
+  {id:'pasteur',cat:'science',flag:'🇫🇷',emoji:'🔬',grade:'grand_croix',year:1881,
+   wt:'Louis_Pasteur',
+   wf:'Albert_Edelfelt_-_Louis_Pasteur_-_1885.jpg',
+   fr:{name:'Louis Pasteur',dates:'1822–1895',country:'France',
+    titre:'Père de la microbiologie',
+    caption:'Portrait par Albert Edelfelt, 1885',
+    bio:'Élevé à la Grand-Croix de la Légion d\'Honneur, Pasteur est l\'un des plus grands bienfaiteurs de l\'humanité. Il découvre la pasteurisation, développe les vaccins contre la rage et le choléra des poules, et fonde la microbiologie. Son Institut porte son nom.',
+    faits:[{t:'Vaccin contre la Rage',y:'1885, premier patient Joseph Meister'},{t:'La Pasteurisation',y:'1864, révolution alimentaire'},{t:'Fondation de l\'Institut Pasteur',y:'1888, Paris'}]},
+   en:{name:'Louis Pasteur',dates:'1822–1895',country:'France',
+    titre:'Father of Microbiology',
+    caption:'Portrait by Albert Edelfelt, 1885',
+    bio:'Elevated to Grand Cross of the Legion of Honor, Pasteur is one of humanity\'s greatest benefactors. He discovered pasteurization, developed vaccines against rabies and chicken cholera, and founded microbiology. His Institute bears his name.',
+    faits:[{t:'Rabies Vaccine',y:'1885, first patient Joseph Meister'},{t:'Pasteurization',y:'1864, food revolution'},{t:'Pasteur Institute Founded',y:'1888, Paris'}]}},
+
+  // ── POLITIQUE ──
+  {id:'degaulle',cat:'politique',flag:'🇫🇷',emoji:'🗼',grade:'grand_croix',year:1945,
+   wt:'Charles_de_Gaulle',
+   wf:'De_Gaulle-OWI.jpg',
+   fr:{name:'Charles de Gaulle',dates:'1890–1970',country:'France',
+    titre:'Général, Président de la République',
+    caption:'Portrait officiel',
+    bio:'Grand-Croix de la Légion d\'Honneur, de Gaulle incarne la résistance française face à l\'occupation nazie. Chef de la France Libre depuis Londres, il entre triomphalement dans Paris libéré en 1944. Fondateur de la Ve République en 1958, il modernise la France et lui redonne rang de grande puissance.',
+    faits:[{t:'Appel du 18 Juin 1940',y:'Radio BBC, acte fondateur'},{t:'Libération de Paris',y:'26 août 1944'},{t:'Fondation de la Ve République',y:'1958, Constitution'}]},
+   en:{name:'Charles de Gaulle',dates:'1890–1970',country:'France',
+    titre:'General, President of the Republic',
+    caption:'Official portrait',
+    bio:'Grand Cross of the Legion of Honor, de Gaulle embodies French resistance against Nazi occupation. Leader of Free France from London, he entered Paris triumphantly after liberation in 1944. Founder of the Fifth Republic in 1958, he modernized France and restored its status as a great power.',
+    faits:[{t:'June 18th Appeal, 1940',y:'BBC Radio, founding act'},{t:'Liberation of Paris',y:'August 26, 1944'},{t:'Fifth Republic Founded',y:'1958, Constitution'}]}},
+
+  {id:'hugo',cat:'litterature',flag:'🇫🇷',emoji:'📚',grade:'officier',year:1825,
+   wt:'Victor_Hugo',
+   wf:'Victor_Hugo_by_Étienne_Carjat_1876_-_full.jpg',
+   fr:{name:'Victor Hugo',dates:'1802–1885',country:'France',
+    titre:'Poète, romancier, dramaturge',
+    caption:'Portrait par Étienne Carjat, 1876',
+    bio:'Nommé Officier de la Légion d\'Honneur à seulement 23 ans par Charles X, Hugo devient le monument de la littérature française. Auteur des Misérables et de Notre-Dame de Paris, député, sénateur, pair de France, il incarne le romantisme et s\'engage pour la République et contre la peine de mort.',
+    faits:[{t:'Les Misérables',y:'1862, chef-d\'œuvre universel'},{t:'Notre-Dame de Paris',y:'1831, Quasimodo'},{t:'Pair de France et Sénateur',y:'Engagement politique majeur'}]},
+   en:{name:'Victor Hugo',dates:'1802–1885',country:'France',
+    titre:'Poet, Novelist, Playwright',
+    caption:'Portrait by Étienne Carjat, 1876',
+    bio:'Appointed Officer of the Legion of Honor at just 23 by Charles X, Hugo became the monument of French literature. Author of Les Misérables and The Hunchback of Notre-Dame, deputy, senator, Peer of France, he embodied Romanticism and fought for the Republic against the death penalty.',
+    faits:[{t:'Les Misérables',y:'1862, universal masterpiece'},{t:'The Hunchback of Notre-Dame',y:'1831, Quasimodo'},{t:'Peer of France & Senator',y:'Major political engagement'}]}},
+
+  {id:'zola',cat:'litterature',flag:'🇫🇷',emoji:'✍️',grade:'officier',year:1888,
+   wt:'Émile_Zola',
+   wf:'Paul_Nadar,_Felix_Nadar_-_Emile_Zola_(1902).jpg',
+   fr:{name:'Émile Zola',dates:'1840–1902',country:'France',
+    titre:'Père du naturalisme',
+    caption:'Portrait par Nadar, 1902',
+    bio:'Officier de la Légion d\'Honneur et père du naturalisme, Zola est l\'auteur du cycle des Rougon-Macquart, fresque sociale en 20 romans. Son engagement courageux dans l\'affaire Dreyfus avec son J\'Accuse ! (1898) fait de lui un symbole de la lutte pour la vérité et la justice.',
+    faits:[{t:'Les Rougon-Macquart',y:'20 romans, 1871-1893'},{t:'J\'Accuse !',y:'1898, affaire Dreyfus'},{t:'Germinal',y:'1885, chef-d\'œuvre social'}]},
+   en:{name:'Émile Zola',dates:'1840–1902',country:'France',
+    titre:'Father of Naturalism',
+    caption:'Portrait by Nadar, 1902',
+    bio:'Officer of the Legion of Honor and father of Naturalism, Zola authored the Rougon-Macquart cycle, a social fresco in 20 novels. His courageous involvement in the Dreyfus Affair with his J\'Accuse! (1898) made him a symbol of the fight for truth and justice.',
+    faits:[{t:'The Rougon-Macquart',y:'20 novels, 1871-1893'},{t:'J\'Accuse!',y:'1898, Dreyfus Affair'},{t:'Germinal',y:'1885, social masterpiece'}]}},
+
+  {id:'simone_veil',cat:'politique',flag:'🇫🇷',emoji:'⚖️',grade:'grand_croix',year:2009,
+   wt:'Simone_Veil',
+   wf:'Simone_Veil-27mai2007.jpg',
+   fr:{name:'Simone Veil',dates:'1927–2017',country:'France',
+    titre:'Femme politique, rescapée de la Shoah',
+    caption:'Simone Veil en 2007',
+    bio:'Grand-Croix de la Légion d\'Honneur, Simone Veil est une figure emblématique de la France. Rescapée d\'Auschwitz, elle devient Ministre de la Santé et fait voter la loi sur l\'IVG en 1975 malgré une opposition féroce. Présidente du Parlement européen, elle entre au Panthéon en 2018.',
+    faits:[{t:'Loi Veil sur l\'IVG',y:'17 janvier 1975, acte historique'},{t:'Présidente du Parlement européen',y:'1979-1982'},{t:'Entrée au Panthéon',y:'1er juillet 2018'}]},
+   en:{name:'Simone Veil',dates:'1927–2017',country:'France',
+    titre:'Politician, Holocaust Survivor',
+    caption:'Simone Veil in 2007',
+    bio:'Grand Cross of the Legion of Honor, Simone Veil is an iconic figure of France. An Auschwitz survivor, she became Minister of Health and passed the abortion law in 1975 despite fierce opposition. President of the European Parliament, she entered the Panthéon in 2018.',
+    faits:[{t:'Veil Law on Abortion',y:'January 17, 1975, historic act'},{t:'President of European Parliament',y:'1979-1982'},{t:'Entered the Panthéon',y:'July 1, 2018'}]}},
+
+  // ── MILITAIRE ──
+  {id:'napoleon',cat:'militaire',flag:'🇫🇷',emoji:'👑',grade:'grand_croix',year:1802,
+   wt:'Napoleon_I_on_His_Imperial_Throne',
+   wf:'Jacques-Louis_David_-_The_Emperor_Napoleon_in_His_Study_at_the_Tuileries_-_Google_Art_Project_2.jpg',
+   fr:{name:'Napoléon Bonaparte',dates:'1769–1821',country:'France',
+    titre:'Fondateur de la Légion d\'Honneur',
+    caption:'Portrait par David',
+    bio:'Napoléon Bonaparte crée lui-même la Légion d\'Honneur par la loi du 29 floréal an X (19 mai 1802), pour récompenser les mérites civils et militaires, sans distinction d\'origine. Il en devient le Grand Maître. Cette institution traverse les régimes et demeure le premier ordre national français.',
+    faits:[{t:'Fondation de la Légion d\'Honneur',y:'19 mai 1802'},{t:'Bataille d\'Austerlitz',y:'2 décembre 1805, victoire absolue'},{t:'Code Napoléon',y:'1804, base du droit civil français'}]},
+   en:{name:'Napoleon Bonaparte',dates:'1769–1821',country:'France',
+    titre:'Founder of the Legion of Honor',
+    caption:'Portrait by David',
+    bio:'Napoleon Bonaparte himself created the Legion of Honor by law of 29 Floréal Year X (May 19, 1802), to reward civil and military merit regardless of origin. He became its Grand Master. This institution has survived all regimes and remains France\'s premier national order.',
+    faits:[{t:'Founded the Legion of Honor',y:'May 19, 1802'},{t:'Battle of Austerlitz',y:'December 2, 1805, absolute victory'},{t:'Napoleonic Code',y:'1804, basis of French civil law'}]}},
+
+  {id:'joffre',cat:'militaire',flag:'🇫🇷',emoji:'🎖️',grade:'grand_croix',year:1914,
+   wt:'Joseph_Joffre',
+   wf:'Joffre.jpg',
+   fr:{name:'Maréchal Joffre',dates:'1852–1931',country:'France',
+    titre:'Vainqueur de la Marne',
+    caption:'Portrait officiel',
+    bio:'Grand-Croix de la Légion d\'Honneur, le Maréchal Joffre est le commandant en chef des armées françaises pendant la Grande Guerre. La bataille de la Marne (septembre 1914) qu\'il dirige stoppe l\'avancée allemande et sauve Paris. Il est élevé à la dignité de Maréchal de France en 1916.',
+    faits:[{t:'Victoire de la Marne',y:'5-12 septembre 1914'},{t:'Maréchal de France',y:'26 décembre 1916'},{t:'Commandant en Chef des Armées',y:'1914-1916'}]},
+   en:{name:'Marshal Joffre',dates:'1852–1931',country:'France',
+    titre:'Victor of the Marne',
+    caption:'Official portrait',
+    bio:'Grand Cross of the Legion of Honor, Marshal Joffre was commander-in-chief of French armies during the Great War. The Battle of the Marne (September 1914) he directed stopped the German advance and saved Paris. He was elevated to Marshal of France in 1916.',
+    faits:[{t:'Victory of the Marne',y:'September 5-12, 1914'},{t:'Marshal of France',y:'December 26, 1916'},{t:'Commander-in-Chief of Armies',y:'1914-1916'}]}},
+
+  // ── SPORT ──
+  {id:'zidane',cat:'sport',flag:'🇫🇷',emoji:'⚽',grade:'chevalier',year:1998,
+   wt:'Zinédine Zidane',
+   wf:'Zinedine_Zidane_2012_Euro.jpg',
+   fr:{name:'Zinedine Zidane',dates:'1972–',country:'France',
+    titre:'Footballeur, Champion du Monde 1998',
+    caption:'Euro 2012',
+    bio:'Chevalier de la Légion d\'Honneur après la Coupe du Monde 1998, Zidane est considéré comme l\'un des meilleurs footballeurs de tous les temps. Ses gestes techniques de haut vol — la roulette, le contrôle de la poitrine — sont légendaires. Formidable entraîneur, il remporte trois Ligue des Champions consécutives avec le Real Madrid.',
+    faits:[{t:'Champion du Monde',y:'12 juillet 1998, France 3 - Brésil 0'},{t:'Ballon d\'Or',y:'1998, 2000, 2003'},{t:'3 Ligue des Champions',y:'2016, 2017, 2018 (coach)'}]},
+   en:{name:'Zinedine Zidane',dates:'1972–',country:'France',
+    titre:'Footballer, 1998 World Champion',
+    caption:'Euro 2012',
+    bio:'Knight of the Legion of Honor after the 1998 World Cup, Zidane is considered one of the greatest footballers of all time. His high-level technical moves — the roulette, chest control — are legendary. A formidable coach, he won three consecutive Champions Leagues with Real Madrid.',
+    faits:[{t:'World Champion',y:'July 12, 1998, France 3 - Brazil 0'},{t:'Ballon d\'Or',y:'1998, 2000, 2003'},{t:'3 Champions Leagues',y:'2016, 2017, 2018 (coach)'}]}},
+
+  {id:'lacoste',cat:'sport',flag:'🇫🇷',emoji:'🎾',grade:'officier',year:1971,
+   wt:'René_Lacoste',
+   wf:'Lacoste_1926.jpg',
+   fr:{name:'René Lacoste',dates:'1904–1996',country:'France',
+    titre:'Champion de tennis, créateur de marque',
+    caption:'René Lacoste en 1926',
+    bio:'Officier de la Légion d\'Honneur, «Le Crocodile» est triple champion de Roland-Garros, double champion de Wimbledon et vainqueur de l\'US Open. Il invente la chemise polo à manches courtes avec un petit crocodile brodé, fondant une marque emblématique. Génie inventif, il crée aussi une machine à lancer des balles de tennis.',
+    faits:[{t:'Victoires en Grand Chelem',y:'7 titres, 1925-1929'},{t:'Coupe Davis',y:'Avec les Mousquetaires'},{t:'Fondation de la marque Lacoste',y:'1933'}]},
+   en:{name:'René Lacoste',dates:'1904–1996',country:'France',
+    titre:'Tennis Champion, Brand Creator',
+    caption:'René Lacoste in 1926',
+    bio:'Officer of the Legion of Honor, "The Crocodile" is three-time Roland Garros champion, two-time Wimbledon champion and US Open winner. He invented the short-sleeved polo shirt with an embroidered small crocodile, founding an iconic brand. An inventive genius, he also created a tennis ball throwing machine.',
+    faits:[{t:'Grand Slam Victories',y:'7 titles, 1925-1929'},{t:'Davis Cup',y:'With the Musketeers'},{t:'Lacoste Brand Founded',y:'1933'}]}},
+
+  // ── MUSIQUE ──
+  {id:'berlioz',cat:'musique',flag:'🇫🇷',emoji:'🎼',grade:'officier',year:1839,
+   wt:'Hector_Berlioz',
+   wf:'Hector_Berlioz_by_Émile_Signol,_1832.jpg',
+   fr:{name:'Hector Berlioz',dates:'1803–1869',country:'France',
+    titre:'Compositeur romantique',
+    caption:'Portrait par Émile Signol, 1832',
+    bio:'Officier de la Légion d\'Honneur, Berlioz est le plus grand compositeur français du romantisme. Sa Symphonie fantastique (1830), révolutionnaire, invente le programme musical avec une histoire racontée par la musique. Pionnier de l\'orchestration moderne, il compose pour des forces orchestrales colossales.',
+    faits:[{t:'Symphonie Fantastique',y:'1830, révolution musicale'},{t:'La Damnation de Faust',y:'1846, opéra monumental'},{t:'Grand Traité d\'Instrumentation',y:'1844, référence mondiale'}]},
+   en:{name:'Hector Berlioz',dates:'1803–1869',country:'France',
+    titre:'Romantic Composer',
+    caption:'Portrait by Émile Signol, 1832',
+    bio:'Officer of the Legion of Honor, Berlioz is the greatest French composer of Romanticism. His Symphonie fantastique (1830), revolutionary, invented program music with a story told through music. Pioneer of modern orchestration, he composed for colossal orchestral forces.',
+    faits:[{t:'Symphonie Fantastique',y:'1830, musical revolution'},{t:'La Damnation of Faust',y:'1846, monumental opera'},{t:'Grand Treatise on Instrumentation',y:'1844, world reference'}]}},
+
+  {id:'piaf',cat:'musique',flag:'🇫🇷',emoji:'🎤',grade:'chevalier',year:1962,
+   wt:'Édith_Piaf',
+   wf:'Edith-piaf-1962.jpg',
+   fr:{name:'Édith Piaf',dates:'1915–1963',country:'France',
+    titre:'La Môme, voix de la France',
+    caption:'Édith Piaf en 1962',
+    bio:'Chevalier de la Légion d\'Honneur, Édith Piaf est la chanteuse française la plus célèbre au monde. Née dans la misère, elle s\'impose comme la «voix de la France» avec Non, je ne regrette rien et La Vie en rose. Sa vie tragique — accidents, deuils, addictions — nourrit une intensité artistique incomparable.',
+    faits:[{t:'Non, je ne regrette rien',y:'1960, hymne universel'},{t:'La Vie en rose',y:'1946, chanson emblématique'},{t:'Tournées mondiales',y:'USA, France, monde entier'}]},
+   en:{name:'Édith Piaf',dates:'1915–1963',country:'France',
+    titre:'La Môme, Voice of France',
+    caption:'Édith Piaf in 1962',
+    bio:'Knight of the Legion of Honor, Édith Piaf is the world\'s most famous French singer. Born in poverty, she established herself as the "voice of France" with Non, je ne regrette rien and La Vie en rose. Her tragic life — accidents, bereavements, addictions — nourished an incomparable artistic intensity.',
+    faits:[{t:'Non, je ne regrette rien',y:'1960, universal anthem'},{t:'La Vie en rose',y:'1946, iconic song'},{t:'World Tours',y:'USA, France, worldwide'}]}},
+
+  // ── CINÉMA ──
+  {id:'lumiere',cat:'cinema',flag:'🇫🇷',emoji:'🎬',grade:'grand_off',year:1920,
+   wt:'Auguste_and_Louis_Lumière',
+   wf:'Louis_Lumière.jpg',
+   fr:{name:'Louis Lumière',dates:'1864–1948',country:'France',
+    titre:'Inventeur du cinéma',
+    caption:'Portrait de Louis Lumière',
+    bio:'Grand Officier de la Légion d\'Honneur, Louis Lumière co-invente avec son frère Auguste le cinématographe, brevet déposé le 13 février 1895. La première projection publique payante a lieu le 28 décembre 1895 au Grand Café à Paris. Pionnier aussi de la photographie couleur avec l\'autochrome.',
+    faits:[{t:'Invention du Cinématographe',y:'1895, brevet mondial'},{t:'Première projection publique',y:'28 décembre 1895, Grand Café Paris'},{t:'L\'Arrivée d\'un Train en Gare',y:'1896, film légendaire'}]},
+   en:{name:'Louis Lumière',dates:'1864–1948',country:'France',
+    titre:'Inventor of Cinema',
+    caption:'Portrait of Louis Lumière',
+    bio:'Grand Officer of the Legion of Honor, Louis Lumière co-invented with his brother Auguste the Cinematograph, patent filed February 13, 1895. The first public paid screening took place December 28, 1895 at the Grand Café in Paris. Also a pioneer of color photography with the autochrome.',
+    faits:[{t:'Invention of the Cinematograph',y:'1895, world patent'},{t:'First Public Screening',y:'December 28, 1895, Grand Café Paris'},{t:'Arrival of a Train at La Ciotat',y:'1896, legendary film'}]}},
+
+  {id:'deneuve',cat:'cinema',flag:'🇫🇷',emoji:'🎭',grade:'commandeur',year:1997,
+   wt:'Catherine_Deneuve',
+   wf:'Catherine_Deneuve_1966.jpg',
+   fr:{name:'Catherine Deneuve',dates:'1943–',country:'France',
+    titre:'Grande Dame du cinéma français',
+    caption:'Catherine Deneuve en 1966',
+    bio:'Commandeure de la Légion d\'Honneur, Catherine Deneuve incarne l\'élégance française dans le monde entier. Elle tourne sous la direction de Buñuel, Truffaut, Demy, Polanski. Belle de Jour, Les Parapluies de Cherbourg, Repulsion sont ses films cultes. Son visage fut choisi comme modèle de Marianne.',
+    faits:[{t:'Les Parapluies de Cherbourg',y:'1964, Palme d\'Or Cannes'},{t:'Belle de Jour',y:'1967, Lion d\'Or Venise'},{t:'Modèle de Marianne',y:'Visage de la République française'}]},
+   en:{name:'Catherine Deneuve',dates:'1943–',country:'France',
+    titre:'Grande Dame of French Cinema',
+    caption:'Catherine Deneuve in 1966',
+    bio:'Commander of the Legion of Honor, Catherine Deneuve embodies French elegance worldwide. She worked with Buñuel, Truffaut, Demy, Polanski. Belle de Jour, The Umbrellas of Cherbourg, Repulsion are her cult films. Her face was chosen as the model for Marianne.',
+    faits:[{t:'The Umbrellas of Cherbourg',y:'1964, Cannes Palme d\'Or'},{t:'Belle de Jour',y:'1967, Venice Golden Lion'},{t:'Model for Marianne',y:'Face of the French Republic'}]}},
+
+  // ── SOCIÉTÉ CIVILE ──
+  {id:'soc_coluche',cat:'societe',domain:'humanitaire',flag:'🇫🇷',emoji:'🤡',grade:'chevalier',year:1984,
+   wt:'Coluche',wf:'Coluche_1984.jpg',
+   fr:{name:'Coluche',dates:'1944–1986',country:'France',
+    titre:'Comédien • Fondateur des Restos du Cœur',
+    caption:'Coluche en 1984',
+    bio:'Humoriste irrévérencieux devenu héros social, Coluche fonde les Restos du Cœur en 1985, un an avant sa mort tragique. Cette association distribue aujourd\'hui plus de 150 millions de repas par an. Sa Légion d\'Honneur récompense autant l\'artiste engagé que le citoyen généreux qui a changé la France.',
+    faits:[{t:'Fondation des Restos du Cœur',y:'1985 — 150M repas/an aujourd\'hui'},{t:'Candidature à la Présidentielle',y:'1981, coup médiatique mémorable'},{t:'Inspecteur la Bavure',y:'Film culte des années 80'}]},
+   en:{name:'Coluche',dates:'1944–1986',country:'France',
+    titre:'Comedian • Founder of Restos du Cœur',
+    caption:'Coluche in 1984',
+    bio:'An irreverent comedian turned social hero, Coluche founded the Restos du Cœur in 1985, a year before his tragic death. The association now distributes over 150 million meals per year. His Legion of Honor rewards both the committed artist and the generous citizen who changed France.',
+    faits:[{t:'Founded Restos du Cœur',y:'1985 — 150M meals/year today'},{t:'Presidential Candidacy',y:'1981, memorable media coup'},{t:'Inspecteur la Bavure',y:'Cult film of the 80s'}]}},
+
+  {id:'soc_abbe',cat:'societe',domain:'humanitaire',flag:'🇫🇷',emoji:'🏠',grade:'grand_croix',year:1992,
+   wt:'Abbé_Pierre',wf:'Abbé_Pierre-1.jpg',
+   fr:{name:'Abbé Pierre',dates:'1912–2007',country:'France',
+    titre:'Prêtre • Fondateur d\'Emmaüs',
+    caption:'Portrait de l\'Abbé Pierre',
+    bio:'Grand-Croix de la Légion d\'Honneur, l\'Abbé Pierre est la personnalité préférée des Français pendant des décennies. Son appel radiophonique du 1er février 1954 lors du terrible hiver provoque un élan de solidarité nationale sans précédent. Fondateur d\'Emmaüs en 1949, il consacre sa vie aux sans-abri.',
+    faits:[{t:'Appel du 1er février 1954',y:'«Mes amis, au secours...»'},{t:'Fondation d\'Emmaüs',y:'1949 — présent dans 40 pays'},{t:'Personnalité préférée des Français',y:'Sondage CSA, 17 années consécutives'}]},
+   en:{name:'Abbé Pierre',dates:'1912–2007',country:'France',
+    titre:'Priest • Founder of Emmaus',
+    caption:'Portrait of Abbé Pierre',
+    bio:'Grand Cross of the Legion of Honor, Abbé Pierre was the French people\'s favorite personality for decades. His radio appeal of February 1, 1954 during the terrible winter sparked an unprecedented wave of national solidarity. Founder of Emmaus in 1949, he devoted his life to the homeless.',
+    faits:[{t:'Appeal of February 1, 1954',y:'"My friends, help..."'},{t:'Emmaus Founded',y:'1949 — present in 40 countries'},{t:'France\'s Favourite Personality',y:'CSA poll, 17 consecutive years'}]}},
+
+  {id:'soc_louise',cat:'societe',domain:'droits',flag:'🇫🇷',emoji:'✊',grade:'chevalier',year:1871,
+   wt:'Louise_Michel',wf:'Louise_Michel_1871.jpg',
+   fr:{name:'Louise Michel',dates:'1830–1905',country:'France',
+    titre:'Institutrice • Militante • Anarchiste',
+    caption:'Louise Michel en 1871',
+    bio:'Institutrice anarchiste et figure emblématique de la Commune de Paris (1871), Louise Michel se bat sur les barricades. Déportée en Nouvelle-Calédonie, elle revient pour continuer son combat pour les droits des femmes et des plus démunis.',
+    faits:[{t:'Commune de Paris',y:'1871 — combattante sur les barricades'},{t:'Déportation en Nouvelle-Calédonie',y:'1873-1880'},{t:'Combat pour les droits des femmes',y:'Pionnière du féminisme français'}]},
+   en:{name:'Louise Michel',dates:'1830–1905',country:'France',
+    titre:'Teacher • Militant • Anarchist',
+    caption:'Louise Michel in 1871',
+    bio:'Anarchist teacher and iconic figure of the Paris Commune (1871), Louise Michel fought on the barricades. Deported to New Caledonia, she returned to continue her fight for women\'s and the poor\'s rights.',
+    faits:[{t:'Paris Commune',y:'1871 — fighter on the barricades'},{t:'Deported to New Caledonia',y:'1873-1880'},{t:'Fight for Women\'s Rights',y:'Pioneer of French feminism'}]}},
+
+  {id:'soc_senghor',cat:'societe',domain:'diplomatie',flag:'🇸🇳',emoji:'🌍',grade:'grand_croix',year:1968,
+   wt:'Léopold_Sédar_Senghor',wf:'Senghor-1987.jpg',
+   fr:{name:'Léopold Sédar Senghor',dates:'1906–2001',country:'Sénégal / France',
+    titre:'Président du Sénégal • Poète • Académicien',
+    caption:'Senghor en 1987',
+    bio:'Grand-Croix de la Légion d\'Honneur, Senghor est une figure unique : poète de la Négritude, premier Président du Sénégal indépendant (1960-1980), et premier Africain élu à l\'Académie française (1983). Il symbolise le pont entre Afrique et France.',
+    faits:[{t:'Premier Président du Sénégal',y:'1960-1980 — père de la nation'},{t:'Élu à l\'Académie française',y:'1983 — premier Africain'},{t:'Fondateur du concept de Négritude',y:'Avec Césaire et Damas, années 30'}]},
+   en:{name:'Léopold Sédar Senghor',dates:'1906–2001',country:'Senegal / France',
+    titre:'President of Senegal • Poet • Academician',
+    caption:'Senghor in 1987',
+    bio:'Grand Cross of the Legion of Honor, Senghor is a unique figure: poet of Négritude, first President of independent Senegal (1960-1980), and first African elected to the Académie française (1983). He symbolizes the bridge between Africa and France.',
+    faits:[{t:'First President of Senegal',y:'1960-1980 — father of the nation'},{t:'Elected to Académie française',y:'1983 — first African'},{t:'Founded Négritude Concept',y:'With Césaire and Damas, 1930s'}]}},
+
+  {id:'soc_beauvoir',cat:'societe',domain:'droits',flag:'🇫🇷',emoji:'📝',grade:'chevalier',year:1983,
+   wt:'Simone_de_Beauvoir',wf:'Simone_de_Beauvoir2.jpg',
+   fr:{name:'Simone de Beauvoir',dates:'1908–1986',country:'France',
+    titre:'Philosophe • Romancière • Féministe',
+    caption:'Simone de Beauvoir',
+    bio:'Philosophe existentialiste et figure majeure du féminisme, Simone de Beauvoir est l\'auteure du Deuxième Sexe (1949). Compagne de Sartre, elle s\'engage toute sa vie dans les combats pour la liberté et l\'émancipation des femmes.',
+    faits:[{t:'Le Deuxième Sexe',y:'1949 — bible du féminisme mondial'},{t:'Prix Goncourt',y:'1954 pour Les Mandarins'},{t:'Manifeste des 343',y:'1971 — combat pour l\'IVG'}]},
+   en:{name:'Simone de Beauvoir',dates:'1908–1986',country:'France',
+    titre:'Philosopher • Novelist • Feminist',
+    caption:'Simone de Beauvoir',
+    bio:'Existentialist philosopher and major figure of feminism, Simone de Beauvoir authored The Second Sex (1949). Sartre\'s companion, she engaged her entire life in fights for freedom and women\'s emancipation.',
+    faits:[{t:'The Second Sex',y:'1949 — bible of global feminism'},{t:'Prix Goncourt',y:'1954 for The Mandarins'},{t:'Manifesto of the 343',y:'1971 — fight for abortion rights'}]}},
+
+  {id:'soc_dassault',cat:'societe',domain:'entreprise',flag:'🇫🇷',emoji:'✈️',grade:'grand_croix',year:1960,
+   wt:'Marcel_Dassault',wf:'Marcel_Dassault.jpg',
+   fr:{name:'Marcel Dassault',dates:'1892–1986',country:'France',
+    titre:'Industriel • Père de l\'aviation française',
+    caption:'Marcel Dassault',
+    bio:'Grand-Croix de la Légion d\'Honneur, Marcel Dassault est le père de l\'aviation militaire française. Fondateur de Dassault Aviation, il crée le Mirage III, le Mirage IV et le Rafale. Survivant d\'Auschwitz, il revient pour bâtir une industrie aéronautique qui fait la fierté de la France.',
+    faits:[{t:'Dassault Aviation fondée',y:'1930 — fleuron de l\'industrie française'},{t:'Mirage III & Mirage IV',y:'Pilier de la défense française'},{t:'Survivant d\'Auschwitz',y:'1944-1945 — retour et reconstruction'}]},
+   en:{name:'Marcel Dassault',dates:'1892–1986',country:'France',
+    titre:'Industrialist • Father of French Aviation',
+    caption:'Marcel Dassault',
+    bio:'Grand Cross of the Legion of Honor, Marcel Dassault is the father of French military aviation. Founder of Dassault Aviation, he created the Mirage III, Mirage IV and Rafale. An Auschwitz survivor, he returned to build an aeronautical industry that is the pride of France.',
+    faits:[{t:'Dassault Aviation Founded',y:'1930 — French flagship'},{t:'Mirage III & Mirage IV',y:'Pillar of French defense'},{t:'Auschwitz Survivor',y:'1944-1945 — return and rebuilding'}]}},
+
+  {id:'soc_chanel',cat:'societe',domain:'mode',flag:'🇫🇷',emoji:'👗',grade:'officier',year:1956,
+   wt:'Coco_Chanel',wf:'Coco_Chanel,_1920.jpg',
+   fr:{name:'Coco Chanel',dates:'1883–1971',country:'France',
+    titre:'Créatrice de mode • Icône de l\'élégance',
+    caption:'Coco Chanel en 1920',
+    bio:'Officier de la Légion d\'Honneur, Gabrielle Coco Chanel révolutionne la mode féminine du XXe siècle. Elle libère la femme du corset, invente le tailleur en tweed, le petit sac en chaîne et le mythique Chanel No 5. Partie de rien, elle bâtit un empire de la mode qui règne encore aujourd\'hui.',
+    faits:[{t:'Chanel No 5',y:'1921 — parfum le plus vendu au monde'},{t:'Le Tailleur en Tweed',y:'Révolution du vestiaire féminin'},{t:'La petite robe noire',y:'1926 — invention de la modernité'}]},
+   en:{name:'Coco Chanel',dates:'1883–1971',country:'France',
+    titre:'Fashion Designer • Icon of Elegance',
+    caption:'Coco Chanel in 1920',
+    bio:'Officer of the Legion of Honor, Gabrielle Coco Chanel revolutionized 20th-century women\'s fashion. She freed women from the corset, invented the tweed suit, the chain bag, and the mythical No 5. Starting from nothing, she built a fashion empire that still reigns today.',
+    faits:[{t:'Chanel No 5',y:'1921 — world\'s best-selling perfume'},{t:'The Tweed Suit',y:'Revolution in women\'s wardrobe'},{t:'The Little Black Dress',y:'1926 — invention of modernity'}]}},
+  {id:'soc_arnault', cat:'societe', domain:'entreprise', flag:'🇫🇷', emoji:'👑',
+   grade:'grand_croix', year:2024,
+   wt:'Bernard_Arnault',
+   wf:'Bernard_Arnault_(2019)_(cropped).jpg',
+   fr:{name:'Bernard Arnault', dates:'1949–', country:'France',
+    titre:'PDG de LVMH • 1ère fortune mondiale',
+    action:'Bâtit le premier groupe de luxe mondial avec 75 maisons emblématiques.',
+    caption:'Bernard Arnault',
+    bio:'Diplômé de Polytechnique, Bernard Arnault prend le contrôle de LVMH en 1988 et le transforme en premier groupe de luxe mondial avec 75 maisons : Louis Vuitton, Dior, Givenchy, Bulgari, Moët & Chandon. Plusieurs fois première fortune mondiale selon Forbes, il reçoit la Grand-Croix de la Légion d\'Honneur en mars 2024 des mains d\'Emmanuel Macron qui salue en lui «un ambassadeur du pays».',
+    faits:[
+     {t:'PDG de LVMH',y:'1988 — 75 maisons de luxe, 213 000 collaborateurs'},
+     {t:'Grand-Croix de la Légion d\'Honneur',y:'13 mars 2024, remise par Macron'},
+     {t:'1ère fortune mondiale Forbes',y:'Plusieurs fois entre 2022 et 2024'}
+    ]},
+   en:{name:'Bernard Arnault', dates:'1949–', country:'France',
+    titre:'CEO of LVMH • World\'s #1 fortune',
+    action:'Built the world\'s leading luxury group with 75 iconic houses.',
+    caption:'Bernard Arnault',
+    bio:'A graduate of Polytechnique, Bernard Arnault took control of LVMH in 1988 and transformed it into the world\'s leading luxury group with 75 houses: Louis Vuitton, Dior, Givenchy, Bulgari, Moët & Chandon. Several times ranked the world\'s wealthiest person by Forbes, he received the Grand Cross of the Legion of Honor in March 2024 from Emmanuel Macron who hailed him as "an ambassador of the country".',
+    faits:[
+     {t:'CEO of LVMH',y:'1988 — 75 luxury houses, 213,000 employees'},
+     {t:'Grand Cross of the Legion of Honor',y:'March 13, 2024, awarded by Macron'},
+     {t:'World\'s #1 Forbes fortune',y:'Several times between 2022 and 2024'}
+    ]}},
+              
+  {id:'soc_bollore', cat:'societe', domain:'entreprise', flag:'🇫🇷', emoji:'📺',
+   grade:'commandeur', year:2009,
+   wt:'Vincent_Bolloré',
+   wf:'Vincent_Bollore.jpg',
+   fr:{name:'Vincent Bolloré', dates:'1952–', country:'France',
+    titre:'Industriel • Propriétaire de médias',
+    action:'Bâtit un empire industriel et médiatique de Bretagne aux quatre coins du monde.',
+    caption:'Vincent Bolloré',
+    bio:'Héritier des papeteries bretonnes Bolloré, Vincent Bolloré transforme un groupe familial en conglomérat mondial présent dans la logistique africaine, les batteries électriques, et les médias. Il prend le contrôle de Vivendi, Canal+ et devient actionnaire de BFM TV. Son influence sur le paysage médiatique français suscite des controverses sur l\'indépendance des rédactions.',
+    faits:[
+     {t:'Commandeur de la Légion d\'Honneur',y:'Décret du 10 avril 2009'},
+     {t:'Prise de contrôle de Vivendi',y:'2012 — Canal+, CNews, Europe 1'},
+     {t:'Groupe Bolloré',y:'Présent dans 45 pays, logistique africaine'}
+    ]},
+   en:{name:'Vincent Bolloré', dates:'1952–', country:'France',
+    titre:'Industrialist • Media Owner',
+    action:'Built an industrial and media empire from Brittany to the four corners of the world.',
+    caption:'Vincent Bolloré',
+    bio:'Heir to the Breton Bolloré paper mills, Vincent Bolloré transformed a family group into a global conglomerate present in African logistics, electric batteries, and media. He took control of Vivendi, Canal+ and became a shareholder of BFM TV. His influence on the French media landscape has sparked controversies over editorial independence.',
+    faits:[
+     {t:'Commander of the Legion of Honor',y:'Decree of April 10, 2009'},
+     {t:'Takeover of Vivendi',y:'2012 — Canal+, CNews, Europe 1'},
+     {t:'Bolloré Group',y:'Present in 45 countries, African logistics'}
+    ]}},
+              
+  {id:'soc_niel', cat:'societe', domain:'entreprise', flag:'🇫🇷', emoji:'📡',
+   grade:'chevalier', year:2021,
+   wt:'Xavier_Niel',
+   wf:'Xavier_Niel_2012.jpg',
+   fr:{name:'Xavier Niel', dates:'1967–', country:'France',
+    titre:'Fondateur de Free • Entrepreneur tech',
+    action:'Révolutionne les télécoms français avec Free et sa Freebox à 29,99€/mois.',
+    caption:'Xavier Niel',
+    bio:'Autodidacte et milliardaire, Xavier Niel fonde Free en 1999 et lance en 2012 la 4e licence mobile française, cassant les prix du marché et forçant Orange, SFR et Bouygues à baisser leurs tarifs. Fondateur de l\'école 42 (formation gratuite au numérique, sans diplôme requis) et de Station F, le plus grand campus de startups du monde à Paris, il incarne l\'entrepreneuriat technologique français.',
+    faits:[
+     {t:'Lancement de Free Mobile',y:'2012 — révolution des prix télécoms'},
+     {t:'École 42',y:'Formation gratuite, 40 campus dans le monde'},
+     {t:'Station F',y:'Plus grand campus de startups au monde, Paris'}
+    ]},
+   en:{name:'Xavier Niel', dates:'1967–', country:'France',
+    titre:'Founder of Free • Tech Entrepreneur',
+    action:'Revolutionized French telecoms with Free and its Freebox at €29.99/month.',
+    caption:'Xavier Niel',
+    bio:'Self-taught billionaire, Xavier Niel founded Free in 1999 and launched the 4th French mobile license in 2012, slashing market prices and forcing Orange, SFR and Bouygues to lower their rates. Founder of École 42 (free digital training, no diploma required) and Station F, the world\'s largest startup campus in Paris, he embodies French tech entrepreneurship.',
+    faits:[
+     {t:'Launch of Free Mobile',y:'2012 — telecom price revolution'},
+     {t:'École 42',y:'Free training, 40 campuses worldwide'},
+     {t:'Station F',y:'World\'s largest startup campus, Paris'}
+    ]}},
+              
+  {id:'soc_saade',cat:'societe',domain:'entreprise',flag:'🇱🇧',emoji:'🚢',grade:'officier',year:2025,
+   wt:'Rodolphe_Saadé',wf:'',
+   fr:{name:'Rodolphe Saadé',dates:'1970–',country:'Liban / France',
+    titre:'PDG de CMA CGM • 3e armateur mondial',
+    caption:'Rodolphe Saadé, PDG du groupe CMA CGM',
+    bio:'Né à Beyrouth en 1970, Rodolphe Saadé reprend en 2017 les rênes du groupe CMA CGM fondé par son père Jacques. Sous sa direction, CMA CGM devient le 3e armateur mondial avec une flotte de près de 700 navires. Il développe la logistique avec CEVA, lance CMA CGM Air Cargo et investit massivement dans la décarbonation avec 18 milliards de dollars. Il acquiert aussi BFM TV, RMC et La Provence.',
+    faits:[{t:'PDG de CMA CGM',y:'2017 — 3e armateur mondial, 160 pays'},{t:'Acquisition de BFM TV et RMC',y:'Juillet 2024'},{t:'18 milliards dans la décarbonation',y:'Objectif zéro carbone 2050'}]},
+   en:{name:'Rodolphe Saadé',dates:'1970–',country:'Lebanon / France',
+    titre:'CEO of CMA CGM • World\'s 3rd largest shipping group',
+    caption:'Rodolphe Saadé, CEO of CMA CGM Group',
+    bio:'Born in Beirut in 1970, Rodolphe Saadé took over in 2017 the CMA CGM group founded by his father Jacques. Under his leadership CMA CGM became the world\'s 3rd largest shipping company with nearly 700 vessels. He expanded into logistics with CEVA, launched CMA CGM Air Cargo and committed $18 billion to decarbonization. He also acquired BFM TV, RMC and La Provence.',
+    faits:[{t:'CEO of CMA CGM',y:'2017 — 3rd largest shipper, 160 countries'},{t:'Acquired BFM TV and RMC',y:'July 2024'},{t:'$18 billion in decarbonization',y:'Zero carbon target by 2050'}]}},
+      {id:'soc_pelicot', cat:'societe', domain:'droits', flag:'🇫🇷', emoji:'⚖️',
+       grade:'chevalier', year:2025,
+       wt:'Gisèle_Pelicot',
+       wf:'',
+       fr:{name:'Gisèle Pelicot', dates:'1949–', country:'France',
+        titre:'Icône féministe • Symbole du combat contre les violences sexuelles',
+        action:'Refuse le huis clos à son procès pour que «la honte change de camp».',
+        caption:'Gisèle Pelicot',
+        bio:'Victime de viols commis par son ex-mari et 50 hommes, Gisèle Pelicot choisit de rendre son procès public en refusant le huis clos, affirmant que «la honte doit changer de camp». Son courage lors du procès des viols de Mazan (septembre-décembre 2024) en fait une icône féministe mondiale. Elle reçoit la Légion d\'Honneur le 14 juillet 2025, est élue parmi les 100 personnalités les plus influentes du monde par le magazine Time, et publiera ses mémoires en 2026 en vingt langues.',
+        faits:[
+         {t:'Procès des viols de Mazan',y:'Septembre-décembre 2024 — procès public historique'},
+         {t:'Prix Liberté',y:'Décerné par 10 000 jeunes issus de 84 pays'},
+         {t:'Time 100 personnes les plus influentes',y:'2025 — reconnaissance mondiale'}
+        ]},
+       en:{name:'Gisèle Pelicot', dates:'1949–', country:'France',
+        titre:'Feminist Icon • Symbol of the fight against sexual violence',
+        action:'Refused a closed hearing at her trial so that «shame changes sides».',
+        caption:'Gisèle Pelicot',
+        bio:'A victim of rape committed by her ex-husband and 50 men, Gisèle Pelicot chose to make her trial public by refusing a closed hearing, declaring that "shame must change sides." Her courage during the Mazan rape trial (September-December 2024) made her a global feminist icon. She received the Legion of Honor on July 14, 2025, was named among Time magazine\'s 100 most influential people in the world, and will publish her memoirs in 2026 in twenty languages.',
+        faits:[
+         {t:'Mazan Rape Trial',y:'September-December 2024 — historic public trial'},
+         {t:'Prix Liberté',y:'Awarded by 10,000 young people from 84 countries'},
+         {t:'Time 100 Most Influential People',y:'2025 — worldwide recognition'}
+        ]}},
+
+  // ── REFUS CÉLÈBRES ──
+  {id:'ref_sartre',cat:'refus',flag:'🇫🇷',emoji:'🚫',grade:'chevalier',year:1945,
+   wt:'Jean-Paul_Sartre',wf:'Jean-Paul_Sartre_FP.jpg',
+   fr:{name:'Jean-Paul Sartre',dates:'1905–1980',country:'France',
+    titre:'Philosophe • Prix Nobel refusé aussi',
+    caption:'Jean-Paul Sartre',
+    raison:'«Je refuse la Légion d\'Honneur car je ne veux pas être institutionnalisé de mon vivant.»',
+    bio:'Philosophe existentialiste et figure intellectuelle majeure du XXe siècle, Sartre refuse la Légion d\'Honneur en 1945 puis le Prix Nobel de Littérature en 1964. Il estime que tout écrivain qui accepte des honneurs officiels trahit son indépendance. Son refus reste l\'un des gestes intellectuels les plus retentissants de l\'histoire française.',
+    faits:[{t:'Refus de la Légion d\'Honneur',y:'1945 — principe d\'indépendance'},{t:'Refus du Prix Nobel de Littérature',y:'1964 — unique dans l\'histoire'},{t:'L\'Être et le Néant',y:'1943 — œuvre philosophique majeure'}]},
+   en:{name:'Jean-Paul Sartre',dates:'1905–1980',country:'France',
+    titre:'Philosopher • Also refused Nobel Prize',
+    caption:'Jean-Paul Sartre',
+    raison:'"I refuse the Legion of Honor because I do not want to be institutionalized during my lifetime."',
+    bio:'Existentialist philosopher and major intellectual figure of the 20th century, Sartre refused the Legion of Honor in 1945 and the Nobel Prize for Literature in 1964. He believed that any writer who accepts official honors betrays their independence. His refusal remains one of the most resounding intellectual gestures in French history.',
+    faits:[{t:'Refused the Legion of Honor',y:'1945 — principle of independence'},{t:'Refused the Nobel Prize in Literature',y:'1964 — unique in history'},{t:'Being and Nothingness',y:'1943 — major philosophical work'}]}},
+
+  {id:'ref_flaubert',cat:'refus',flag:'🇫🇷',emoji:'✍️',grade:'officier',year:1866,
+   wt:'Gustave_Flaubert',wf:'Gustave_Flaubert.jpg',
+   fr:{name:'Gustave Flaubert',dates:'1821–1880',country:'France',
+    titre:'Romancier • Auteur de Madame Bovary',
+    caption:'Portrait de Gustave Flaubert',
+    raison:'«Je n\'ai aucun besoin d\'être décoré. Ma décoration, c\'est mon œuvre.»',
+    bio:'Auteur de Madame Bovary et de L\'Éducation sentimentale, Flaubert refuse à plusieurs reprises la Légion d\'Honneur proposée par le Second Empire. Épris d\'indépendance absolue, il considère que l\'art ne doit rien à l\'État et que les honneurs officiels corrompent la pureté de la création littéraire. Son ami Zola dira de lui qu\'il fut le plus libre des écrivains.',
+    faits:[{t:'Madame Bovary',y:'1857 — chef-d\'œuvre du réalisme'},{t:'Refus répétés de la Légion d\'Honneur',y:'Sous le Second Empire'},{t:'L\'Éducation sentimentale',y:'1869 — roman générationnel'}]},
+   en:{name:'Gustave Flaubert',dates:'1821–1880',country:'France',
+    titre:'Novelist • Author of Madame Bovary',
+    caption:'Portrait of Gustave Flaubert',
+    raison:'"I have no need to be decorated. My decoration is my work."',
+    bio:'Author of Madame Bovary and Sentimental Education, Flaubert repeatedly refused the Legion of Honor offered by the Second Empire. Committed to absolute independence, he believed art owes nothing to the State and that official honors corrupt the purity of literary creation. His friend Zola said he was the freest of all writers.',
+    faits:[{t:'Madame Bovary',y:'1857 — masterpiece of Realism'},{t:'Repeated refusals of Legion of Honor',y:'Under the Second Empire'},{t:'Sentimental Education',y:'1869 — generational novel'}]}},
+
+  {id:'ref_monet_refus',cat:'refus',flag:'🇫🇷',emoji:'🎨',grade:'officier',year:1888,
+   wt:'Georges_Clemenceau',wf:'Nadar_-_Georges_Clemenceau_(1).jpg',
+   fr:{name:'Georges Clemenceau',dates:'1841–1929',country:'France',
+    titre:'Homme politique • Le Tigre',
+    caption:'Portrait de Clemenceau par Nadar',
+    raison:'«Je ne veux pas être décoré. Je veux être libre.»',
+    bio:'Surnommé le Tigre, Georges Clemenceau refuse la Légion d\'Honneur et toute décoration officielle tout au long de sa vie, préférant incarner une République de principe plutôt que de façade. Père de la Victoire en 1918, il dirige la France dans les heures les plus sombres de la Grande Guerre et refuse même d\'être enterré au Panthéon.',
+    faits:[{t:'Refus de la Légion d\'Honneur',y:'Tout au long de sa vie'},{t:'Père de la Victoire',y:'11 novembre 1918'},{t:'Refus du Panthéon',y:'Enterré avec son père en Vendée'}]},
+   en:{name:'Georges Clemenceau',dates:'1841–1929',country:'France',
+    titre:'Statesman • The Tiger',
+    caption:'Portrait of Clemenceau by Nadar',
+    raison:'"I do not want to be decorated. I want to be free."',
+    bio:'Nicknamed the Tiger, Georges Clemenceau refused the Legion of Honor and all official decorations throughout his life, preferring to embody a Republic of principle rather than façade. Father of Victory in 1918, he led France through the darkest hours of the Great War and even refused to be buried in the Panthéon.',
+    faits:[{t:'Refused the Legion of Honor',y:'Throughout his entire life'},{t:'Father of Victory',y:'November 11, 1918'},{t:'Refused the Panthéon',y:'Buried with his father in Vendée'}]}},
+
+  {id:'ref_maupassant',cat:'refus',flag:'🇫🇷',emoji:'🖊️',grade:'chevalier',year:1880,
+   wt:'Guy_de_Maupassant',wf:'Guy_de_Maupassant_fotograferad_av_Félix_Nadar_1888.jpg',
+   fr:{name:'Guy de Maupassant',dates:'1850–1893',country:'France',
+    titre:'Nouvelliste • Maître du réalisme',
+    caption:'Maupassant photographié par Nadar, 1888',
+    raison:'«Les honneurs ne m\'intéressent pas. Ce qui m\'intéresse, c\'est la vérité.»',
+    bio:'Disciple de Flaubert et maître de la nouvelle réaliste, Maupassant refuse la Légion d\'Honneur avec mépris. Auteur de Boule de Suif, Bel-Ami et La Parure, il juge les distinctions officielles comme des instruments du conformisme bourgeois qu\'il passe sa vie à dénoncer dans ses œuvres. Il meurt à 43 ans dans la folie, laissant une œuvre immense.',
+    faits:[{t:'Boule de Suif',y:'1880 — coup d\'éclat littéraire'},{t:'Bel-Ami',y:'1885 — roman de l\'ambition'},{t:'La Parure',y:'1884 — nouvelle emblématique'}]},
+   en:{name:'Guy de Maupassant',dates:'1850–1893',country:'France',
+    titre:'Short Story Master • Realist',
+    caption:'Maupassant photographed by Nadar, 1888',
+    raison:'"Honors do not interest me. What interests me is the truth."',
+    bio:'Disciple of Flaubert and master of the realist short story, Maupassant refused the Legion of Honor with contempt. Author of Boule de Suif, Bel-Ami and The Necklace, he regarded official distinctions as instruments of bourgeois conformism he spent his life denouncing. He died at 43 in madness, leaving an immense body of work.',
+    faits:[{t:'Boule de Suif',y:'1880 — literary sensation'},{t:'Bel-Ami',y:'1885 — novel of ambition'},{t:'The Necklace',y:'1884 — iconic short story'}]}},
+
+  {id:'ref_rimbaud',cat:'refus',flag:'🇫🇷',emoji:'⚡',grade:'chevalier',year:1870,
+   wt:'Arthur_Rimbaud',wf:'Arthur_Rimbaud_(Carjat_1872)_-_b.jpg',
+   fr:{name:'Arthur Rimbaud',dates:'1854–1891',country:'France',
+    titre:'Poète maudit • Génie rebelle',
+    caption:'Rimbaud par Carjat, 1872',
+    raison:'«Je hais toutes les fonctions françaises, divines et officielles.»',
+    bio:'Génie précoce de la poésie française, Rimbaud rejette avec violence toute institution, tout honneur officiel et finalement la littérature elle-même. À 19 ans, il cesse d\'écrire et part pour l\'Afrique comme commerçant. Il aurait rejeté toute décoration avec la même véhémence qu\'il refusa l\'ordre établi. Le Bateau ivre et Une Saison en Enfer restent parmi les plus grands poèmes jamais écrits.',
+    faits:[{t:'Le Bateau ivre',y:'1871 — à 17 ans'},{t:'Une Saison en Enfer',y:'1873 — adieu à la littérature'},{t:'Abandon de la poésie',y:'1875 — part en Afrique'}]},
+   en:{name:'Arthur Rimbaud',dates:'1854–1891',country:'France',
+    titre:'Cursed Poet • Rebellious Genius',
+    caption:'Rimbaud by Carjat, 1872',
+    raison:'"I hate all French, divine and official functions."',
+    bio:'Precocious genius of French poetry, Rimbaud violently rejected every institution, every official honor and ultimately literature itself. At 19, he stopped writing and left for Africa as a trader. He would have rejected any decoration with the same vehemence he refused the established order. The Drunken Boat and A Season in Hell remain among the greatest poems ever written.',
+    faits:[{t:'The Drunken Boat',y:'1871 — at age 17'},{t:'A Season in Hell',y:'1873 — farewell to literature'},{t:'Abandonment of Poetry',y:'1875 — left for Africa'}]}},
+
+  {id:'ref_bardot',cat:'refus',flag:'🇫🇷',emoji:'🐾',grade:'chevalier',year:1985,
+   wt:'Brigitte_Bardot',wf:'Brigitte_Bardot_1962.jpg',
+   fr:{name:'Brigitte Bardot',dates:'1934–',country:'France',
+    titre:'Actrice • Militante pour les animaux',
+    caption:'Brigitte Bardot en 1962',
+    raison:'«Je refuse cette décoration d\'un État qui autorise le massacre des animaux.»',
+    bio:'Icône mondiale du cinéma français dans les années 60, Brigitte Bardot refuse la Légion d\'Honneur pour protester contre la politique française en matière de protection animale, notamment la chasse et l\'abattage des phoques. Elle avait pourtant été proposée à plusieurs reprises. Son refus public fait scandale et médiatise efficacement sa cause.',
+    faits:[{t:'Refus de la Légion d\'Honneur',y:'1985 — protestation pour les animaux'},{t:'Fondation Brigitte Bardot',y:'1962 — protection des animaux'},{t:'Et Dieu créa la femme',y:'1956 — film culte de Vadim'}]},
+   en:{name:'Brigitte Bardot',dates:'1934–',country:'France',
+    titre:'Actress • Animal Rights Activist',
+    caption:'Brigitte Bardot in 1962',
+    raison:'"I refuse this decoration from a State that authorizes the slaughter of animals."',
+    bio:'Global icon of French cinema in the 1960s, Brigitte Bardot refused the Legion of Honor to protest French policy on animal protection, particularly hunting and seal culling. She had been proposed several times. Her public refusal caused a scandal and effectively publicized her cause.',
+    faits:[{t:'Refused the Legion of Honor',y:'1985 — protest for animals'},{t:'Brigitte Bardot Foundation',y:'1962 — animal protection'},{t:'And God Created Woman',y:'1956 — Vadim cult film'}]}}
+              ,
+                {id:'ref_pierre_curie',cat:'refus',flag:'🇫🇷',emoji:'⚗️',grade:'chevalier',year:1903,
+                 wt:'Pierre_Curie',wf:'Pierre_Curie_by_Dujardin_c1906.jpg',
+                 fr:{name:'Pierre Curie',dates:'1859–1906',country:'France',
+                  titre:'Physicien • Prix Nobel 1903 • Découvreur du radium',
+                  caption:'Portrait de Pierre Curie',
+                  raison:'«Je n\'éprouve pas le besoin d\'être décoré.»',
+                  bio:'Cofondateur de la radioactivité avec Marie Curie, Pierre Curie refuse la Légion d\'Honneur malgré son Prix Nobel de Physique en 1903. Il estime que les distinctions officielles ne correspondent pas à sa conception de la science, faite d\'humilité et de service désintéressé. Il meurt en 1906 renversé par une charrette à Paris. En 1995, ses cendres et celles de Marie sont transférés au Panthéon.',
+                  faits:[{t:'Prix Nobel de Physique',y:'1903, partagé avec Marie Curie'},{t:'Découverte du polonium et du radium',y:'1898, révolution scientifique'},{t:'Transfert au Panthéon',y:'1995, avec Marie Curie'}]},
+                 en:{name:'Pierre Curie',dates:'1859–1906',country:'France',
+                  titre:'Physicist • Nobel Prize 1903 • Discoverer of Radium',
+                  caption:'Portrait of Pierre Curie',
+                  raison:'"I feel no need to be decorated."',
+                  bio:'Co-founder of radioactivity with Marie Curie, Pierre Curie refused the Legion of Honor despite his Nobel Prize in Physics in 1903. He felt that official distinctions did not match his vision of science, made of humility and selfless service. He died in 1906 struck by a cart in Paris. In 1995, his ashes and Marie\'s were transferred to the Panthéon.',
+                  faits:[{t:'Nobel Prize in Physics',y:'1903, shared with Marie Curie'},{t:'Discovery of Polonium and Radium',y:'1898, scientific revolution'},{t:'Transfer to the Panthéon',y:'1995, with Marie Curie'}]}},
+
+                {id:'ref_brassens',cat:'refus',flag:'🇫🇷',emoji:'🎸',grade:'chevalier',year:1967,
+                 wt:'Georges_Brassens',wf:'Brassens_1952.jpg',
+                 fr:{name:'Georges Brassens',dates:'1921–1981',country:'France',
+                  titre:'Chanteur • Poète • Anarchiste',
+                  caption:'Georges Brassens en 1952',
+                  raison:'«La Légion d\'Honneur, ça pardonne pas. Ce petit hochet à la boutonnière vous condamne à de bonnes manières.»',
+                  bio:'Chanteur anarchiste et poète de génie, Georges Brassens refuse la Légion d\'Honneur et en fait une chanson satirique mémorable. Grand Prix de Poésie de l\'Académie française en 1967, il refuse aussi d\'entrer à l\'Académie. Auteur de La Mauvaise Réputation, Les Copains d\'abord et Mourir pour des idées, il incarne une liberté absolue vis-à-vis de tout pouvoir et de toute institution.',
+                  faits:[{t:'Refus de la Légion d\'Honneur',y:'Et en fit une chanson satirique'},{t:'Grand Prix de Poésie de l\'Académie française',y:'1967 — et refusa l\'Académie aussi'},{t:'Plus de 100 chansons',y:'La Mauvaise Réputation, Les Copains d\'abord...'}]},
+                 en:{name:'Georges Brassens',dates:'1921–1981',country:'France',
+                  titre:'Singer • Poet • Anarchist',
+                  caption:'Georges Brassens in 1952',
+                  raison:'"The Legion of Honor, it doesn\'t forgive. That little trinket in the buttonhole condemns you to good manners."',
+                  bio:'Anarchist singer and poet of genius, Georges Brassens refused the Legion of Honor and wrote a memorable satirical song about it. Grand Prize of Poetry from the Académie française in 1967, he also refused to join the Académie. Author of La Mauvaise Réputation, Les Copains d\'abord and Mourir pour des idées, he embodied absolute freedom from all power and institutions.',
+                  faits:[{t:'Refused the Legion of Honor',y:'And wrote a satirical song about it'},{t:'Grand Prize of Poetry, Académie française',y:'1967 — and refused the Académie too'},{t:'Over 100 songs',y:'La Mauvaise Réputation, Les Copains d\'abord...'}]}},
+
+                {id:'ref_ravel',cat:'refus',flag:'🇫🇷',emoji:'🎹',grade:'chevalier',year:1920,
+                 wt:'Maurice_Ravel',wf:'Maurice_Ravel_1925.jpg',
+                 fr:{name:'Maurice Ravel',dates:'1875–1937',country:'France',
+                  titre:'Compositeur • Maître de l\'impressionnisme musical',
+                  caption:'Maurice Ravel en 1925',
+                  raison:'Erik Satie écrivit : «Ravel refuse la Légion d\'Honneur, mais toute sa musique l\'accepte.»',
+                  bio:'Considéré comme le plus grand compositeur français de son époque, Maurice Ravel refuse la Légion d\'Honneur proposée en 1920. Auteur du Boléro, du Concerto pour la main gauche et de La Valse, il avait auparavant été écarté cinq fois du Prix de Rome, déclenchant le scandale de «l\'Affaire Ravel» au Conservatoire. Son refus reste l\'un des plus commentés de l\'histoire musicale française.',
+                  faits:[{t:'Refus de la Légion d\'Honneur',y:'1920 — malgré sa gloire internationale'},{t:'Boléro',y:'1928 — œuvre la plus jouée au monde'},{t:'L\'Affaire Ravel',y:'1905 — scandale du Conservatoire de Paris'}]},
+                 en:{name:'Maurice Ravel',dates:'1875–1937',country:'France',
+                  titre:'Composer • Master of Musical Impressionism',
+                  caption:'Maurice Ravel in 1925',
+                  raison:'Erik Satie wrote: "Ravel refuses the Legion of Honor, but all his music accepts it."',
+                  bio:'Regarded as the greatest French composer of his era, Maurice Ravel refused the Legion of Honor offered in 1920. Author of Boléro, the Concerto for the Left Hand and La Valse, he had previously been rejected five times from the Prix de Rome, sparking the "Ravel Affair" scandal at the Conservatoire. His refusal remains one of the most commented in French musical history.',
+                  faits:[{t:'Refused the Legion of Honor',y:'1920 — despite his international fame'},{t:'Boléro',y:'1928 — the world\'s most performed orchestral work'},{t:'The Ravel Affair',y:'1905 — Paris Conservatoire scandal'}]}},
+
+                {id:'ref_berlioz',cat:'refus',flag:'🇫🇷',emoji:'🎼',grade:'officier',year:1839,
+                 wt:'Hector_Berlioz',wf:'Hector_Berlioz_by_Émile_Signol,_1832.jpg',
+                 fr:{name:'Hector Berlioz',dates:'1803–1869',country:'France',
+                  titre:'Compositeur romantique • Révolutionnaire orchestral',
+                  caption:'Portrait par Émile Signol, 1832',
+                  raison:'«Je ne veux pas de ces hochets qui ne récompensent pas le génie mais la servilité.»',
+                  bio:'Génie romantique incompris de son vivant en France, Hector Berlioz refuse les distinctions officielles qu\'il juge indignes de son œuvre. Auteur de la Symphonie Fantastique, de La Damnation de Faust et du Requiem, il est bien plus célébré à l\'étranger qu\'à Paris. Son refus traduit une amertume profonde envers les institutions françaises qui l\'ont longtemps ignoré.',
+                  faits:[{t:'Symphonie Fantastique',y:'1830 — révolution musicale'},{t:'La Damnation de Faust',y:'1846 — chef-d\'œuvre lyrique'},{t:'Grand Traité d\'Instrumentation',y:'1844 — référence mondiale'}]},
+                 en:{name:'Hector Berlioz',dates:'1803–1869',country:'France',
+                  titre:'Romantic Composer • Orchestral Revolutionary',
+                  caption:'Portrait by Émile Signol, 1832',
+                  raison:'"I want none of these trinkets that reward not genius but servility."',
+                  bio:'A Romantic genius misunderstood in France during his lifetime, Hector Berlioz refused official distinctions he deemed unworthy of his work. Author of the Symphonie Fantastique, La Damnation de Faust and the Requiem, he was far more celebrated abroad than in Paris. His refusal reflected deep bitterness toward French institutions that long ignored him.',
+                  faits:[{t:'Symphonie Fantastique',y:'1830 — musical revolution'},{t:'La Damnation de Faust',y:'1846 — lyrical masterpiece'},{t:'Grand Treatise on Instrumentation',y:'1844 — world reference'}]}},
+
+                {id:'ref_sand',cat:'refus',flag:'🇫🇷',emoji:'📖',grade:'chevalier',year:1850,
+                 wt:'George_Sand',wf:'George_Sand_by_Nadar,_1864.jpg',
+                 fr:{name:'George Sand',dates:'1804–1876',country:'France',
+                  titre:'Romancière • Féministe avant l\'heure',
+                  caption:'George Sand par Nadar, 1864',
+                  raison:'«Je ne veux pas avoir l\'air d\'une vieille cantinière.»',
+                  bio:'Amantine Aurore Dupin, dite George Sand, refuse la Légion d\'Honneur qu\'elle juge ridicule pour une femme de lettres. Pionnière du féminisme, elle choque son époque en portant des habits masculins, en fumant en public et en menant une vie amoureuse libre — Musset, Chopin. Auteure prolifique de plus de 70 romans, elle incarne une liberté totale face aux conventions du XIXe siècle.',
+                  faits:[{t:'Refus de la Légion d\'Honneur',y:'«L\'air d\'une vieille cantinière»'},{t:'Relation avec Frédéric Chopin',y:'1838-1847, passion légendaire'},{t:'Plus de 70 romans',y:'La Mare au Diable, La Petite Fadette...'}]},
+                 en:{name:'George Sand',dates:'1804–1876',country:'France',
+                  titre:'Novelist • Feminist Ahead of Her Time',
+                  caption:'George Sand by Nadar, 1864',
+                  raison:'"I do not want to look like an old cantinière."',
+                  bio:'Amantine Aurore Dupin, known as George Sand, refused the Legion of Honor which she found ridiculous for a woman of letters. A pioneer of feminism, she shocked her era by wearing men\'s clothing, smoking in public and leading a free romantic life — Musset, Chopin. A prolific author of over 70 novels, she embodied total freedom from 19th-century conventions.',
+                  faits:[{t:'Refused the Legion of Honor',y:'"Like an old cantinière"'},{t:'Relationship with Frédéric Chopin',y:'1838-1847, legendary passion'},{t:'Over 70 novels',y:'La Mare au Diable, La Petite Fadette...'}]}}
+];
+
+// ─── IMAGES WIKIPEDIA ────────────────────────────────────────────────────────
+function loadImg(p){
+  if(!CapHttp||!p.wt) return;
+  var wt=p.wt;
+  CapHttp.get({url:'https://fr.wikipedia.org/w/api.php?action=query&titles='+encodeURIComponent(wt)+'&prop=pageimages&pithumbsize=400&format=json',headers:{}})
+  .then(function(r){
+    var data=typeof r.data==='string'?JSON.parse(r.data):r.data;
+    var pages=data.query&&data.query.pages;
+    if(!pages) return tryWf(p);
+    var pg=Object.values(pages)[0];
+    if(pg&&pg.thumbnail&&pg.thumbnail.source) return fetchImg(p.id,pg.thumbnail.source);
+    tryWf(p);
+  }).catch(function(){ tryWf(p); });
+}
+function tryWf(p){
+  if(!CapHttp||!p.wf) return;
+  var url='https://commons.wikimedia.org/w/api.php?action=query&titles=File:'+encodeURIComponent(p.wf)+'&prop=pageimages&pithumbsize=400&format=json';
+  CapHttp.get({url:url,headers:{}}).then(function(r){
+    var data=typeof r.data==='string'?JSON.parse(r.data):r.data;
+    var pages=data.query&&data.query.pages;
+    if(!pages) return;
+    var pg=Object.values(pages)[0];
+    if(pg&&pg.thumbnail&&pg.thumbnail.source) fetchImg(p.id,pg.thumbnail.source);
+  }).catch(function(){});
+}
+function fetchImg(pid,src){
+  if(!CapHttp) return;
+  CapHttp.get({url:src,responseType:'arraybuffer',headers:{}}).then(function(r){
+    var b64='data:image/jpeg;base64,'+r.data;
+    imgCache[pid]=b64;
+    applyImgToDOM(pid,b64);
+  }).catch(function(){});
+}
+function applyImgToDOM(pid,b64){
+  document.querySelectorAll('.row-img[data-pid="'+pid+'"] img').forEach(function(i){i.src=b64;i.style.display='block';});
+  document.querySelectorAll('.soc-card-img[data-pid="'+pid+'"] img').forEach(function(i){i.src=b64;i.style.display='block';});
+  if(currentSheetId===pid){
+    var si=document.getElementById('shImg');
+    if(si){si.src=b64;si.style.display='block';var ph=document.getElementById('shImgPh');if(ph)ph.style.display='none';}
+    var qi=document.getElementById('quizImgEl');
+    if(qi&&qi.dataset.pid===pid){qi.src=b64;}
+  }
+}
+
+// ─── FILTRES & RECHERCHE ─────────────────────────────────────────────────────
+function getCats(){
+  var all=[];
+  LEGION.forEach(function(p){if(all.indexOf(p.cat)<0)all.push(p.cat);});
+  return all;
+}
+function renderChips(){
+  var bar=document.getElementById('chipsBar');
+  bar.innerHTML='';
+  var all=document.createElement('button');
+  all.className='chip'+(currentFilter==='tous'?' active':'');
+  all.textContent=LANG==='fr'?'Tous':'All';
+  all.onclick=function(){currentFilter='tous';renderChips();renderList();};
+  bar.appendChild(all);
+  getCats().forEach(function(c){
+    var btn=document.createElement('button');
+    btn.className='chip'+(currentFilter===c?' active':'');
+    btn.textContent=CATEGORIES[c]?CATEGORIES[c][LANG]:c;
+    btn.onclick=function(){currentFilter=c;renderChips();renderList();};
+    bar.appendChild(btn);
+  });
+}
+function filtered(){
+  return LEGION.filter(function(p){
+    var d=p[LANG]||p.fr;
+    var matchCat=(currentFilter==='tous'||p.cat===currentFilter);
+    var q=searchQ.trim().toLowerCase();
+    var matchSearch=!q||d.name.toLowerCase().indexOf(q)>=0||d.titre.toLowerCase().indexOf(q)>=0||(CATEGORIES[p.cat]&&CATEGORIES[p.cat][LANG].toLowerCase().indexOf(q)>=0);
+    return matchCat&&matchSearch;
+  });
+}
+function renderList(){
+  var list=document.getElementById('mainList');
+  list.innerHTML='';
+  var items=filtered();
+  if(!items.length){
+    list.innerHTML='<div class="empty">'+(LANG==='fr'?'Aucun résultat':'No results')+'</div>';
+    return;
+  }
+  // Grouper par catégorie
+  var groups={};
+  items.forEach(function(p){
+    if(!groups[p.cat])groups[p.cat]=[];
+    groups[p.cat].push(p);
+  });
+  Object.keys(groups).forEach(function(cat){
+    var hdr=document.createElement('div');
+    hdr.className='section-hdr'+(cat==='refus'?' refus':'');
+    hdr.textContent=(CATEGORIES[cat]?CATEGORIES[cat][LANG]:cat).toUpperCase();
+    list.appendChild(hdr);
+    groups[cat].forEach(function(p){
+      var d=p[LANG]||p.fr;
+      var row=document.createElement('div');
+      row.className='prow'+(p.cat==='refus'?' refus-row':'');
+      row.onclick=function(){openSheet(p.id);};
+      var imgB64=imgCache[p.id]||'';
+      var badgeHtml = p.cat==='refus'
+        ? '<div class="refus-badge">🚫 '+(LANG==='fr'?'A refusé la décoration':'Refused the decoration')+'</div>'
+        : '<div class="row-badge">🎖️ '+(GRADES[p.grade]?GRADES[p.grade][LANG]:p.grade)+' · '+p.year+'</div>';
+      row.innerHTML='<div class="row-img" data-pid="'+p.id+'"><span>'+p.emoji+'</span>'+(imgB64?'<img src="'+imgB64+'" style="display:block">':'<img src="">')+'</div>'+
+        '<div class="row-info">'+
+          '<div class="row-name">'+d.name+'</div>'+
+          '<div class="row-dates">'+d.dates+' · '+d.country+'</div>'+
+          '<div class="row-cat">'+d.titre+'</div>'+
+          badgeHtml+
+        '</div>'+
+        '<div class="row-flag">'+p.flag+'</div>'+
+        '<div class="row-arr">›</div>';
+      list.appendChild(row);
+      if(!imgB64) loadImg(p);
+    });
+  });
+}
+
+// ─── SHEET ───────────────────────────────────────────────────────────────────
+function openSheet(id){
+  var p=LEGION.filter(function(x){return x.id===id;})[0];
+  if(!p) return;
+  currentSheetId=id;
+  var d=p[LANG]||p.fr;
+  document.getElementById('shName').textContent=d.name;
+  document.getElementById('shDates').textContent=d.dates;
+  document.getElementById('shCountry').textContent=d.country;
+  // Tags
+  var tw=document.getElementById('shTagWrap');
+  if(p.cat==='refus'){
+    tw.innerHTML='<span class="sh-tag" style="background:rgba(139,26,26,.4);border-color:rgba(192,57,43,.6)">🚫 '+(LANG==='fr'?'Refus célèbre':'Famous Refusal')+'</span>';
+  } else {
+    tw.innerHTML='<span class="sh-tag">'+(CATEGORIES[p.cat]?CATEGORIES[p.cat][LANG]:p.cat)+'</span>'+
+      '<span class="sh-grade">🎖️ '+(GRADES[p.grade]?GRADES[p.grade][LANG]:p.grade)+'</span>';
+  }
+  // Médaille ou bandeau refus
+  var banner=document.getElementById('medalBanner');
+  if(p.cat==='refus'){
+    banner.style.background='linear-gradient(135deg,rgba(139,26,26,.35),rgba(80,10,10,.2))';
+    banner.style.borderColor='rgba(192,57,43,.4)';
+    document.getElementById('medalYear').textContent=LANG==='fr'?'Décoration refusée':'Decoration refused';
+    document.getElementById('medalGrade').textContent=p.year+' — '+(LANG==='fr'?'par principe':'on principle');
+  } else {
+    banner.style.background='';
+    banner.style.borderColor='';
+    document.getElementById('medalYear').textContent=(LANG==='fr'?'Nommé en ':'Appointed in ')+p.year;
+    document.getElementById('medalGrade').textContent=GRADES[p.grade]?GRADES[p.grade][LANG]:p.grade;
+  }
+  // Image
+  var si=document.getElementById('shImg');
+  var ph=document.getElementById('shImgPh');
+  si.style.display='none'; si.src='';
+  ph.textContent=p.emoji;
+  if(imgCache[id]){si.src=imgCache[id];si.style.display='block';ph.style.display='none';}
+  else{ph.style.display='block';loadImg(p);}
+  document.getElementById('shCap').textContent=d.caption||'';
+  // Citation de refus
+  var shBody=document.getElementById('shBio').parentNode;
+  var oldQuote=document.getElementById('refusQuote');
+  if(oldQuote) oldQuote.remove();
+  if(p.cat==='refus'&&d.raison){
+    var quote=document.createElement('div');
+    quote.id='refusQuote';
+    quote.className='refus-quote';
+    quote.innerHTML='<div class="refus-quote-text">'+d.raison+'</div>';
+    shBody.insertBefore(quote,shBody.firstChild);
+  }
+  // Bio
+  document.getElementById('shBioLbl').textContent=LANG==='fr'?'Biographie':'Biography';
+  document.getElementById('shBio').textContent=d.bio;
+  // Faits
+  document.getElementById('shFaitsLbl').textContent=LANG==='fr'?'Faits marquants':'Key Facts';
+  var fl=document.getElementById('shFaits');
+  fl.innerHTML='';
+  (d.faits||[]).forEach(function(f){
+    fl.innerHTML+='<div class="fitem"><div class="ft">'+f.t+'</div><div class="fy">'+f.y+'</div></div>';
+  });
+  document.getElementById('overlay').classList.add('on');
+  document.getElementById('sheet').classList.add('on');
+}
+function closeSheet(){
+  currentSheetId=null;
+  document.getElementById('overlay').classList.remove('on');
+  document.getElementById('sheet').classList.remove('on');
+}
+
+// ─── LANGUE ──────────────────────────────────────────────────────────────────
+function toggleLang(){
+  LANG=LANG==='fr'?'en':'fr';
+  document.getElementById('langBtn').textContent=LANG==='fr'?'🇬🇧':'🇫🇷';
+  document.getElementById('searchInput').placeholder=LANG==='fr'?'Rechercher un récipiendaire…':'Search a recipient…';
+  renderChips();renderList();
+  if(document.getElementById('histoirePanel').classList.contains('on')) renderHistoire();
+  if(document.getElementById('societePanel').classList.contains('on')){ renderSocieteFilters(); renderSocieteCards(); }
+}
+
+// ─── RECHERCHE ────────────────────────────────────────────────────────────────
+function onSearch(inp){
+  searchQ=inp.value;
+  document.getElementById('clearBtn').style.display=inp.value?'flex':'none';
+  renderList();
+}
+function clearSearch(){
+  searchQ='';
+  document.getElementById('searchInput').value='';
+  document.getElementById('clearBtn').style.display='none';
+  renderList();
+}
+
+// ─── QUIZ ─────────────────────────────────────────────────────────────────────
+function buildQuiz(cat){
+  var pool=LEGION.filter(function(p){return !cat||p.cat===cat;});
+  if(pool.length<3) pool=LEGION;
+  var shuffled=pool.slice().sort(function(){return Math.random()-.5;});
+  var q=shuffled.slice(0,Math.min(10,shuffled.length));
+  var allNames=LEGION.map(function(p){return (p[LANG]||p.fr).name;});
+  quizData=q.map(function(p){
+    var d=p[LANG]||p.fr;
+    var wrong=allNames.filter(function(n){return n!==d.name;}).sort(function(){return Math.random()-.5;}).slice(0,3);
+    var opts=[d.name].concat(wrong).sort(function(){return Math.random()-.5;});
+    var qtype='titre';
+    if(p.cat==='refus') qtype='refus';
+    else if(p.cat==='societe') qtype=Math.random()<0.5?'action':'titre';
+    return {pid:p.id,name:d.name,correct:d.name,options:opts,titre:d.titre,action:d.action||'',raison:d.raison||'',cat:p.cat,qtype:qtype};
+  });
+  quizIdx=0;quizScore=0;quizAnswered=false;
+}
+function startQuizGlobal(){
+  buildQuiz(currentFilter==='tous'?null:currentFilter);
+  document.getElementById('quizOverlay').classList.add('on');
+  renderQuizQ();
+}
+function startQuizFromSheet(){
+  var p=LEGION.filter(function(x){return x.id===currentSheetId;})[0];
+  closeSheet();
+  buildQuiz(p?p.cat:null);
+  document.getElementById('quizOverlay').classList.add('on');
+  renderQuizQ();
+}
+function closeQuiz(){document.getElementById('quizOverlay').classList.remove('on');}
+function renderQuizQ(){
+  var card=document.getElementById('quizCard');
+  if(quizIdx>=quizData.length){
+    var pct=Math.round(quizScore/quizData.length*100);
+    var mention='';
+    if(pct===100) mention=LANG==='fr'?'🏆 Parfait !':'🏆 Perfect!';
+    else if(pct>=70) mention=LANG==='fr'?'👏 Très bien !':'👏 Well done!';
+    else if(pct>=40) mention=LANG==='fr'?'📚 Pas mal !':'📚 Not bad!';
+    else mention=LANG==='fr'?'💡 À revoir...':'💡 Keep learning...';
+    card.innerHTML='<button class="quiz-close-btn" onclick="closeQuiz()">✕</button>'+
+      '<div class="quiz-score-num">'+quizScore+' / '+quizData.length+'</div>'+
+      '<div class="quiz-score-lbl">'+mention+'</div>'+
+      '<button class="quiz-next" onclick="closeQuiz()">'+(LANG==='fr'?'Fermer':'Close')+'</button>'+
+      '<button class="quiz-replay" onclick="startQuizGlobal()">'+(LANG==='fr'?'Rejouer':'Replay')+'</button>';
+    return;
+  }
+  var q=quizData[quizIdx];
+  var p=LEGION.filter(function(x){return x.id===q.pid;})[0];
+  var imgSrc=imgCache[q.pid]||'';
+  var question='';
+  if(q.qtype==='refus'){
+    var cit=q.raison?q.raison.substring(0,90)+(q.raison.length>90?'...':''):'';
+    question=LANG==='fr'
+      ?'Qui a <b>refusé</b> la Légion d\'Honneur&nbsp;?<br><small style="color:var(--muted);font-size:.82em;font-style:italic;line-height:1.4;display:block;margin-top:5px">'+cit+'</small>'
+      :'Who <b>refused</b> the Legion of Honor?<br><small style="color:var(--muted);font-size:.82em;font-style:italic;line-height:1.4;display:block;margin-top:5px">'+cit+'</small>';
+  } else if(q.qtype==='action'&&q.action){
+    question=LANG==='fr'
+      ?'Qui a accompli cet acte&nbsp;?<br><small style="color:var(--gold2);font-size:.82em;font-style:italic;line-height:1.4;display:block;margin-top:5px">'+q.action+'</small>'
+      :'Who accomplished this act?<br><small style="color:var(--gold2);font-size:.82em;font-style:italic;line-height:1.4;display:block;margin-top:5px">'+q.action+'</small>';
+  } else {
+    question=LANG==='fr'
+      ?'Qui est <b>'+q.titre+'</b>&nbsp;?'
+      :'Who is the <b>'+q.titre+'</b>?';
+  }
+  var catIcon=q.cat==='refus'?'🚫':q.cat==='societe'?'🤝':'🎖️';
+  var imgHtml=imgSrc
+    ?'<img id="quizImgEl" data-pid="'+q.pid+'" class="quiz-img" src="'+imgSrc+'" alt="">'
+    :'<img id="quizImgEl" data-pid="'+q.pid+'" class="quiz-img" style="display:none" alt="">';
+  var optsHtml=q.options.map(function(o){
+    var safe=o.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+    return '<button class="quiz-opt" data-val="'+safe+'" onclick="answerQuiz(this)">'+o+'</button>';
+  }).join('');
+  card.innerHTML='<button class="quiz-close-btn" onclick="closeQuiz()">✕</button>'+
+    '<div class="quiz-progress">'+catIcon+' Question '+(quizIdx+1)+'/'+quizData.length+'</div>'+
+    imgHtml+
+    '<div class="quiz-q">'+question+'</div>'+
+    '<div class="quiz-opts">'+optsHtml+'</div>';
+  quizAnswered=false;
+  if(!imgSrc) loadImg(p);
+}
+function answerQuiz(btn){
+  if(quizAnswered) return;
+  quizAnswered=true;
+  var chosen=btn.getAttribute('data-val');
+  var correct=quizData[quizIdx].correct;
+  document.querySelectorAll('.quiz-opt').forEach(function(b){
+    b.disabled=true;
+    if(b.getAttribute('data-val')===correct)b.classList.add('correct');
+  });
+  if(chosen===correct){quizScore++;btn.classList.add('correct');}
+  else btn.classList.add('wrong');
+  var next=document.createElement('button');
+  next.className='quiz-next';
+  next.textContent=quizIdx+1>=quizData.length
+    ?(LANG==='fr'?'Voir le score':'See score')
+    :(LANG==='fr'?'Question suivante →':'Next →');
+  next.onclick=function(){quizIdx++;renderQuizQ();};
+  document.getElementById('quizCard').appendChild(next);
+}
+
+// ─── SETTINGS ────────────────────────────────────────────────────────────────
+var APPS=[
+  {id:'6767810270',name:'Iles du Monde'},
+  {id:'6768003416',name:'Explorateurs'},
+  {id:'6767492967',name:'Institutions Mondiales'},
+  {id:'6767135193',name:'Auteurs de BD'},
+  {id:'6766260978',name:'Histoire Informatique'},
+  {id:'6766261703',name:'Micro-informatique'},
+  {id:6763507194,name:'Hotels RoofTop'},{id:6762618424,name:'Ponts du Monde'},
+  {id:6763076110,name:'Paquebots'},{id:6763069304,name:'Avions de Légende'},
+  {id:6763071567,name:'Voitures'},{id:6762077646,name:'Flip Board'},
+  {id:6762632868,name:'Trains'},{id:6762823383,name:'Châteaux Loire'},
+  {id:6762598304,name:'Mers & Océans'},{id:6762594201,name:'Détroits'},
+  {id:6762558969,name:'ColorCode'},{id:6762552826,name:'Lexigo'},
+  {id:6762542395,name:'Conquêtes'},{id:6762522136,name:'Dynasties Ch.'},
+  {id:6762452564,name:'Dynasties Ru.'},{id:6762370541,name:'États-Unis'},
+  {id:6762091681,name:'Bataille Nav.'},{id:6762098486,name:'Familles Roy.'},
+  {id:6762263227,name:'Leaders Eu.'},{id:6762346365,name:'Pays UE'},
+  {id:6762256169,name:'Présidents US'},{id:6762076518,name:'Dames'},
+  {id:6761993002,name:'Comédie Fr.'},{id:6761769529,name:'Institut Fr.'},
+  {id:6761324444,name:'Présidents Fr.'},{id:6761709149,name:'Saint-Denis'},
+  {id:6761685637,name:'Arbres Fr.'},{id:6761363063,name:'Sénat Paris'},
+  {id:6761656628,name:'Compositeurs'},{id:6761374601,name:'Maréchaux'},
+  {id:6761322546,name:'Rois de Fr.'},{id:6761361079,name:'Assemblée'},
+  {id:6761335268,name:'Panthéon'},{id:1483084001,name:'Belote Calc'},
+  {id:6760751055,name:'Cimetières'},{id:1481989301,name:'Tarots Calc'},
+  {id:6761334922,name:'Académie Fr.'},{id:6761293938,name:'Scènes Paris'},
+  {id:6761271324,name:'MediSafe'},{id:6760617965,name:'MesRestaurants'},
+  {id:6760126279,name:'Cave Manager'},{id:6760890465,name:'Musées Paris'},
+  {id:6760929391,name:'Théâtres Paris'},{id:6759219383,name:'Frigo Manager'},
+  {id:1475884625,name:'Toi ou Moi'},{id:6761421276,name:'Capitales Eu.'},
+  {id:6762006105,name:'Iconic Covers'}
+];
+function openSettings(){document.getElementById('settingsPanel').classList.add('on');renderSettings();}
+function closeSettings(){document.getElementById('settingsPanel').classList.remove('on');}
+function renderSettings(){
+  var grid=document.getElementById('appsGrid');
+  if(grid.childElementCount>0) return;
+  APPS.forEach(function(app){
+    var item=document.createElement('div');item.className='apps-grid-item';
+    item.onclick=(function(id){return function(){openExternal(null,'https://apps.apple.com/app/id'+id);};})(app.id);
+    var img=document.createElement('img');img.width=56;img.height=56;
+    var span=document.createElement('span');span.textContent=app.name;
+    item.appendChild(img);item.appendChild(span);grid.appendChild(item);
+    var cb='itcb'+app.id;
+    window[cb]=(function(i){return function(d){if(d.results&&d.results[0])i.src=d.results[0].artworkUrl60;};})(img);
+    var s=document.createElement('script');
+    s.src='https://itunes.apple.com/lookup?id='+app.id+'&callback='+cb;
+    document.body.appendChild(s);
+  });
+}
+function openExternal(e,url){
+  if(e)e.preventDefault();
+  if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Browser)
+    window.Capacitor.Plugins.Browser.open({url:url});
+  else window.open(url,'_system');
+}
+
+// ─── SOCIÉTÉ CIVILE ──────────────────────────────────────────────────────────
+var socDomainFilter = 'tous';
+
+var SOC_DOMAINS = {
+  tous:        {fr:'Tous',              en:'All'},
+  humanitaire: {fr:'Humanitaire',       en:'Humanitarian'},
+  entreprise:  {fr:'Entreprise & Innovation', en:'Business & Innovation'},
+  droits:      {fr:'Droits & Libertés', en:'Rights & Freedoms'},
+  education:   {fr:'Éducation',         en:'Education'},
+  mode:        {fr:'Mode & Design',     en:'Fashion & Design'},
+  diplomatie:  {fr:'Diplomatie',        en:'Diplomacy'}
+};
+
+var SOCIETE = []; // Les données société sont dans LEGION avec cat:'societe'
+
+
+
+// ─── FONCTIONS SOCIÉTÉ CIVILE ─────────────────────────────────────────────────
+function openSociete(){
+  document.getElementById('societePanel').classList.add('on');
+  renderSocieteFilters();
+  renderSocieteCards();
+}
+function closeSociete(){
+  document.getElementById('societePanel').classList.remove('on');
+}
+function renderSocieteFilters(){
+  var bar = document.getElementById('socDomainsBar');
+  bar.innerHTML = '';
+  Object.keys(SOC_DOMAINS).forEach(function(k){
+    var btn = document.createElement('button');
+    btn.className = 'soc-domain-chip' + (socDomainFilter===k?' active':'');
+    btn.textContent = SOC_DOMAINS[k][LANG]||SOC_DOMAINS[k].fr;
+    btn.onclick = function(){ socDomainFilter=k; renderSocieteFilters(); renderSocieteCards(); };
+    bar.appendChild(btn);
+  });
+}
+function renderSocieteCards(){
+  var scroll = document.getElementById('societeScroll');
+  var items = LEGION.filter(function(p){
+    return p.cat==='societe' && (socDomainFilter==='tous' || p.domain===socDomainFilter);
+  });
+
+  // Intro + stats
+  var intro = LANG==='fr'
+    ? {title:'La Société Civile & la Légion d\'Honneur',
+       text:'Au-delà des militaires et des politiques, la Légion d\'Honneur récompense les femmes et hommes qui ont transformé la France par leur engagement humanitaire, leur génie entrepreneurial, leur combat pour les droits ou leur rayonnement culturel. Ces personnages ont changé la société française et souvent le monde entier.'}
+    : {title:'Civil Society & the Legion of Honor',
+       text:'Beyond military and political figures, the Legion of Honor rewards women and men who have transformed France through humanitarian commitment, entrepreneurial genius, fights for rights, or cultural influence. These figures changed French society and often the world.'};
+
+  var html = '<div class="soc-intro"><div class="soc-intro-title">'+intro.title+'</div>'+
+    '<div class="soc-intro-text">'+intro.text+'</div></div>';
+
+  html += '<div class="soc-stats">'+
+    '<div class="soc-stat"><div class="soc-stat-num">'+items.length+'</div><div class="soc-stat-lbl">'+(LANG==='fr'?'Récipiendaires':'Recipients')+'</div></div>'+
+    '<div class="soc-stat"><div class="soc-stat-num">6</div><div class="soc-stat-lbl">'+(LANG==='fr'?'Domaines':'Domains')+'</div></div>'+
+    '<div class="soc-stat"><div class="soc-stat-num">5</div><div class="soc-stat-lbl">'+(LANG==='fr'?'Grades':'Ranks')+'</div></div>'+
+    '</div>';
+
+  if(!items.length){
+    html += '<div class="empty">'+(LANG==='fr'?'Aucun résultat':'No results')+'</div>';
+    scroll.innerHTML = html; return;
+  }
+
+  // Grouper par domaine si filtre = tous
+  if(socDomainFilter==='tous'){
+    var groups={};
+    items.forEach(function(p){ if(!groups[p.domain])groups[p.domain]=[]; groups[p.domain].push(p); });
+    Object.keys(groups).forEach(function(dom){
+      html += '<div class="soc-section-hdr">'+(SOC_DOMAINS[dom]?SOC_DOMAINS[dom][LANG]:dom)+'</div>';
+      groups[dom].forEach(function(p){ html += buildSocCard(p); });
+    });
+  } else {
+    items.forEach(function(p){ html += buildSocCard(p); });
+  }
+  scroll.innerHTML = html;
+  // Charger images
+  items.forEach(function(p){ if(!imgCache[p.id]) loadImg(p); else applyImgToSoc(p.id,imgCache[p.id]); });
+}
+function buildSocCard(p){
+  var d = p[LANG]||p.fr;
+  var imgB64 = imgCache[p.id]||'';
+  var domLabel = SOC_DOMAINS[p.domain]?SOC_DOMAINS[p.domain][LANG]:p.domain;
+  var gradeLabel = GRADES[p.grade]?GRADES[p.grade][LANG]:p.grade;
+  return '<div class="soc-card" onclick="openSheetSoc(\''+p.id+'\')" data-socid="'+p.id+'">'+
+    '<div class="soc-card-top">'+
+      '<div class="soc-card-img" data-pid="'+p.id+'"><span>'+p.emoji+'</span>'+(imgB64?'<img src="'+imgB64+'" style="display:block">':'<img src="">')+'</div>'+
+      '<div class="soc-card-info">'+
+        '<div class="soc-card-name">'+d.name+' '+p.flag+'</div>'+
+        '<div class="soc-card-dates">'+d.dates+'</div>'+
+        '<div class="soc-card-titre">'+d.titre+'</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="soc-card-bottom">'+
+      '<span class="soc-domain-tag">'+domLabel+'</span>'+
+      '<span class="soc-grade-tag">🎖️ '+gradeLabel+'</span>'+
+      '<span class="soc-year-tag">'+p.year+'</span>'+
+    '</div>'+
+    '</div>';
+}
+function applyImgToSoc(pid,b64){
+  document.querySelectorAll('#societeScroll .soc-card-img[data-pid="'+pid+'"] img').forEach(function(i){i.src=b64;i.style.display='block';});
+}
+function openSheetSoc(id){
+  var p = LEGION.filter(function(x){return x.id===id;})[0];
+  if(!p) return;
+  closeSociete();
+  // Réutilise la sheet principale
+  currentSheetId = id;
+  var d = p[LANG]||p.fr;
+  document.getElementById('shName').textContent = d.name;
+  document.getElementById('shDates').textContent = d.dates;
+  document.getElementById('shCountry').textContent = d.country||'';
+  var tw = document.getElementById('shTagWrap');
+  var domLabel = (SOC_DOMAINS[p.domain]||CATEGORIES[p.cat]||{fr:p.domain||p.cat})[LANG]||'';
+  tw.innerHTML = '<span class="sh-tag">'+domLabel+'</span>'+
+    '<span class="sh-grade">🎖️ '+(GRADES[p.grade]?GRADES[p.grade][LANG]:p.grade)+'</span>';
+  document.getElementById('medalYear').textContent = (LANG==='fr'?'Nommé en ':'Appointed in ')+p.year;
+  document.getElementById('medalGrade').textContent = GRADES[p.grade]?GRADES[p.grade][LANG]:p.grade;
+  var si = document.getElementById('shImg');
+  var ph = document.getElementById('shImgPh');
+  si.style.display='none'; si.src=''; ph.textContent=p.emoji; ph.style.display='block';
+  if(imgCache[id]){si.src=imgCache[id];si.style.display='block';ph.style.display='none';}
+  else loadImg(p);
+  document.getElementById('shCap').textContent = d.caption||d.action||'';
+  document.getElementById('shBioLbl').textContent = LANG==='fr'?'Biographie':'Biography';
+  document.getElementById('shBio').textContent = d.bio;
+  document.getElementById('shFaitsLbl').textContent = LANG==='fr'?'Faits marquants':'Key Facts';
+  var fl = document.getElementById('shFaits');
+  fl.innerHTML = '';
+  (d.faits||[]).forEach(function(f){ fl.innerHTML+='<div class="fitem"><div class="ft">'+f.t+'</div><div class="fy">'+f.y+'</div></div>'; });
+  document.getElementById('overlay').classList.add('on');
+  document.getElementById('sheet').classList.add('on');
+}
+
+// ─── HISTOIRE ────────────────────────────────────────────────────────────────
+var HISTOIRE = {
+  fr: {
+    title: 'Histoire de la Légion d\'Honneur',
+    hero_title: 'La Légion d\'Honneur',
+    hero_sub: 'Premier ordre national français · Fondé en 1802',
+    stats: [
+      {num:'1802', lbl:'Fondation'},
+      {num:'75 000', lbl:'Membres actifs'},
+      {num:'5', lbl:'Grades'},
+      {num:'220+', lbl:'Ans d\'histoire'}
+    ],
+    sections: [
+      {
+        title: 'Origines & Création',
+        paras: [
+          'La Légion d\'Honneur est créée par Napoléon Bonaparte, Premier Consul, par la loi du 29 floréal an X, soit le 19 mai 1802. L\'idée centrale est révolutionnaire pour l\'époque : récompenser les mérites civils et militaires, sans distinction de naissance ni d\'origine sociale.',
+          'Avant la Révolution, les distinctions honorifiques étaient l\'apanage de la noblesse. Napoléon invente un ordre ouvert à tous, fondé uniquement sur le mérite et le service rendu à la Nation française. Cette vision égalitaire est alors totalement novatrice.'
+        ]
+      },
+      {
+        title: 'La Devise & les Symboles',
+        devise: { text: '« Honneur et Patrie »', sub: 'Devise officielle de la Légion d\'Honneur' },
+        paras: [
+          'La décoration est une étoile à cinq branches émaillée de blanc, ornée d\'une tête de Marianne entourée de la devise « République Française ». Le ruban est rouge écarlate, couleur symbolisant le sang versé pour la patrie.',
+          'Le Grand Maître de la Légion d\'Honneur est traditionnellement le Président de la République française, soulignant le caractère suprême et républicain de cet ordre.'
+        ]
+      },
+      {
+        title: 'Les Cinq Grades',
+        grades: [
+          {stars:'⭐', name:'Chevalier', desc:'1er grade · Ruban rouge simple · Point d\'entrée dans l\'Ordre'},
+          {stars:'⭐⭐', name:'Officier', desc:'2e grade · Rosette rouge au ruban · Après 8 ans minimum'},
+          {stars:'⭐⭐⭐', name:'Commandeur', desc:'3e grade · Croix portée en sautoir · Après 5 ans d\'Officier'},
+          {stars:'⭐⭐⭐⭐', name:'Grand Officier', desc:'4e grade · Plaque argentée · Dignité très rare'},
+          {stars:'⭐⭐⭐⭐⭐', name:'Grand-Croix', desc:'Grade suprême · Plaque et grand cordon · Réservé aux plus éminents'}
+        ]
+      },
+      {
+        title: 'Chronologie historique',
+        timeline: [
+          {emoji:'👑', year:'19 mai 1802', event:'Napoléon Bonaparte crée la Légion d\'Honneur par la loi du 29 floréal an X.'},
+          {emoji:'⛪', year:'15 juillet 1804', event:'Première cérémonie solennelle aux Invalides. Napoléon remet lui-même les premières décorations.'},
+          {emoji:'🔴', year:'1814–1830', event:'La Restauration maintient l\'ordre mais change les symboles. Louis XVIII et Charles X conservent la Légion d\'Honneur.'},
+          {emoji:'🏛️', year:'1830', event:'La Monarchie de Juillet confirme l\'ordre. Louis-Philippe rétablit les insignes républicains.'},
+          {emoji:'🎓', year:'1856', event:'Fondation de la Maison d\'Éducation de la Légion d\'Honneur à Saint-Denis, pour les filles de membres décorés.'},
+          {emoji:'⚔️', year:'1914–1918', event:'La Grande Guerre voit une distribution massive. Des milliers de soldats sont décorés pour bravoure.'},
+          {emoji:'✊', year:'1944', event:'Après la Libération, de nombreux résistants et Alliés reçoivent la Légion d\'Honneur pour leur courage.'},
+          {emoji:'👩', year:'1962', event:'Édith Piaf reçoit la Légion d\'Honneur. Les femmes sont désormais pleinement intégrées à l\'ordre.'},
+          {emoji:'🌍', year:'Aujourd\'hui', event:'75 000 membres actifs dans le monde. L\'ordre reste le symbole suprême de la reconnaissance de la Nation française.'}
+        ]
+      },
+      {
+        title: 'Le Palais de la Légion d\'Honneur',
+        paras: [
+          'Le siège de la Légion d\'Honneur est le Palais de la Légion d\'Honneur, situé 2 rue de la Légion-d\'Honneur à Paris, en face du musée d\'Orsay. Cet hôtel particulier du XVIIIe siècle, construit par l\'architecte Pierre Rousseau pour le prince de Salm, abrite également le Musée national de la Légion d\'Honneur et des Ordres de Chevalerie.',
+          'Le musée retrace l\'histoire de l\'ordre à travers une collection unique de décorations, uniformes, portraits et documents, depuis la fondation napoléonienne jusqu\'à nos jours.'
+        ]
+      }
+    ]
+  },
+  en: {
+    title: 'History of the Legion of Honor',
+    hero_title: 'The Legion of Honor',
+    hero_sub: 'France\'s Premier National Order · Founded in 1802',
+    stats: [
+      {num:'1802', lbl:'Founded'},
+      {num:'75,000', lbl:'Active Members'},
+      {num:'5', lbl:'Ranks'},
+      {num:'220+', lbl:'Years of History'}
+    ],
+    sections: [
+      {
+        title: 'Origins & Creation',
+        paras: [
+          'The Legion of Honor was created by Napoleon Bonaparte, First Consul, by the law of 29 Floréal Year X, on May 19, 1802. The central idea was revolutionary for the era: to reward civil and military merit, regardless of birth or social origin.',
+          'Before the Revolution, honorary distinctions were the privilege of the nobility. Napoleon invented an order open to all, based solely on merit and service to the French Nation. This egalitarian vision was entirely groundbreaking.'
+        ]
+      },
+      {
+        title: 'The Motto & Symbols',
+        devise: { text: '"Honor and Homeland"', sub: 'Official motto of the Legion of Honor' },
+        paras: [
+          'The decoration is a five-pointed white enamel star bearing a head of Marianne surrounded by the motto "République Française." The ribbon is scarlet red, symbolizing blood shed for the homeland.',
+          'The Grand Master of the Legion of Honor is traditionally the President of the French Republic, underscoring the supreme and republican character of this order.'
+        ]
+      },
+      {
+        title: 'The Five Ranks',
+        grades: [
+          {stars:'⭐', name:'Knight', desc:'1st rank · Simple red ribbon · Entry point into the Order'},
+          {stars:'⭐⭐', name:'Officer', desc:'2nd rank · Red rosette on ribbon · After minimum 8 years'},
+          {stars:'⭐⭐⭐', name:'Commander', desc:'3rd rank · Cross worn as a neck badge · After 5 years as Officer'},
+          {stars:'⭐⭐⭐⭐', name:'Grand Officer', desc:'4th rank · Silver plate · Very rare dignity'},
+          {stars:'⭐⭐⭐⭐⭐', name:'Grand Cross', desc:'Supreme rank · Plate and grand cordon · Reserved for the most eminent'}
+        ]
+      },
+      {
+        title: 'Historical Timeline',
+        timeline: [
+          {emoji:'👑', year:'May 19, 1802', event:'Napoleon Bonaparte creates the Legion of Honor by the law of 29 Floréal Year X.'},
+          {emoji:'⛪', year:'July 15, 1804', event:'First solemn ceremony at Les Invalides. Napoleon personally awards the first decorations.'},
+          {emoji:'🔴', year:'1814–1830', event:'The Restoration maintains the order but changes symbols. Louis XVIII and Charles X preserve the Legion of Honor.'},
+          {emoji:'🏛️', year:'1830', event:'The July Monarchy confirms the order. Louis-Philippe restores republican insignia.'},
+          {emoji:'🎓', year:'1856', event:'Foundation of the Maison d\'Éducation de la Légion d\'Honneur in Saint-Denis, for daughters of decorated members.'},
+          {emoji:'⚔️', year:'1914–1918', event:'The Great War sees massive distribution. Thousands of soldiers are decorated for bravery.'},
+          {emoji:'✊', year:'1944', event:'After the Liberation, many resistance fighters and Allies receive the Legion of Honor for their courage.'},
+          {emoji:'👩', year:'1962', event:'Édith Piaf receives the Legion of Honor. Women are now fully integrated into the order.'},
+          {emoji:'🌍', year:'Today', event:'75,000 active members worldwide. The order remains the supreme symbol of recognition by the French Nation.'}
+        ]
+      },
+      {
+        title: 'The Palace of the Legion of Honor',
+        paras: [
+          'The headquarters of the Legion of Honor is the Palais de la Légion d\'Honneur, located at 2 rue de la Légion-d\'Honneur in Paris, opposite the Musée d\'Orsay. This 18th-century mansion, built by architect Pierre Rousseau for the Prince of Salm, also houses the National Museum of the Legion of Honor and Orders of Chivalry.',
+          'The museum traces the history of the order through a unique collection of decorations, uniforms, portraits, and documents, from the Napoleonic founding to the present day.'
+        ]
+      }
+    ]
+  }
+};
+
+function openHistoire(){
+  document.getElementById('histoirePanel').classList.add('on');
+  renderHistoire();
+}
+function closeHistoire(){
+  document.getElementById('histoirePanel').classList.remove('on');
+}
+function renderHistoire(){
+  var h = HISTOIRE[LANG] || HISTOIRE.fr;
+  document.getElementById('histTitle').textContent = h.title;
+  var scroll = document.getElementById('histScroll');
+  var html = '';
+  // Hero
+  html += '<div class="hist-hero">'+
+    '<div class="hist-ribbon">🎖️</div>'+
+    '<div class="hist-hero-title">'+h.hero_title+'</div>'+
+    '<div class="hist-hero-sub">'+h.hero_sub+'</div>'+
+    '</div>';
+  // Stats
+  html += '<div class="hist-stats">';
+  h.stats.forEach(function(s){
+    html += '<div class="hist-stat">'+
+      '<div class="hist-stat-num">'+s.num+'</div>'+
+      '<div class="hist-stat-lbl">'+s.lbl+'</div>'+
+      '</div>';
+  });
+  html += '</div>';
+  // Sections
+  h.sections.forEach(function(sec){
+    html += '<div class="hist-section">';
+    html += '<div class="hist-sec-title">'+sec.title+'</div>';
+    // Devise
+    if(sec.devise){
+      html += '<div class="hist-devise">'+
+        '<div class="hist-devise-text">'+sec.devise.text+'</div>'+
+        '<div class="hist-devise-sub">'+sec.devise.sub+'</div>'+
+        '</div>';
+    }
+    // Paragraphes
+    if(sec.paras){
+      sec.paras.forEach(function(p){
+        html += '<div class="hist-para">'+p+'</div>';
+      });
+    }
+    // Grades
+    if(sec.grades){
+      html += '<div class="hist-grades">';
+      sec.grades.forEach(function(g){
+        html += '<div class="hist-grade-item">'+
+          '<div class="hist-grade-stars">'+g.stars+'</div>'+
+          '<div><div class="hist-grade-name">'+g.name+'</div>'+
+          '<div class="hist-grade-desc">'+g.desc+'</div></div>'+
+          '</div>';
+      });
+      html += '</div>';
+    }
+    // Timeline
+    if(sec.timeline){
+      html += '<div class="hist-timeline">';
+      sec.timeline.forEach(function(t){
+        html += '<div class="hist-titem">'+
+          '<div class="hist-tdot">'+t.emoji+'</div>'+
+          '<div class="hist-tcontent">'+
+            '<div class="hist-tyear">'+t.year+'</div>'+
+            '<div class="hist-tevent">'+t.event+'</div>'+
+          '</div>'+
+          '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  scroll.innerHTML = html;
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+applyFontSize();
+renderChips();
+renderList();
+</script>
+</body>
+</html>
